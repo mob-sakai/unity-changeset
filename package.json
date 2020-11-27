@@ -1,0 +1,31 @@
+{
+  "name": "unity-changeset",
+  "version": "0.0.0",
+  "description": "Get/List Unity changeset",
+  "main": "lib/index.js",
+  "repository": "git@github.com:mob-sakai/unity-changeset.git",
+  "author": "mob-sakai <sakai861104@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint \"src/**/*\"",
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "engines": {
+    "node": "10"
+  },
+  "dependencies": {
+    "jsdom": "^16.4.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^16.2.4",
+    "@types/node": "^14.11.10",
+    "@types/node-fetch": "^2.5.7",
+    "@typescript-eslint/eslint-plugin": "^3.9.1",
+    "@typescript-eslint/parser": "^3.8.0",
+    "eslint": "^7.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "typescript": "^3.8.0"
+  }
+}
