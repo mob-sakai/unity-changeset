@@ -1,5 +1,110 @@
-unity-version
+unity-changeset
 ===
 
-Get/List Unity editor version and change-set
+Get/List Unity editor changeset
 
+[![npm](https://img.shields.io/npm/v/unity-changeset)](https://www.npmjs.com/package/unity-changeset)
+[![npm (beta)](https://img.shields.io/npm/v/unity-changeset/beta)](https://www.npmjs.com/package/unity-changeset/v/beta)
+![license](https://img.shields.io/npm/l/unity-changeset)
+![downloads](https://img.shields.io/npm/dy/unity-changeset)
+![release](https://github.com/mob-sakai/unity-changeset/workflows/release/badge.svg)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+
+<br><br><br><br>
+
+## Install
+
+```sh
+npm install unity-changeset
+```
+
+## Usage
+
+As a node module:
+
+```js
+const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = require('unity-changeset');
+
+(async () => {
+    const changeset = await getUnityChangeset('2020.1.14f1');
+    console.log(changeset);
+    //=> UnityChangeset {version: '2020.1.14f1', changeset: 'd81f64f5201d'}
+    console.log(changeset.toString());
+    //=> 2020.1.14f1/d81f64f5201d
+    const changesets = await scrapeArchivedChangesets();
+    console.dir(changesets);
+    //=> [UnityChangeset, UnityChangeset, ...]
+    const betaChangesets = await scrapeBetaChangesets();
+    console.log(betaChangesets);
+    //=> [UnityChangeset, UnityChangeset, ...]
+})();
+```
+
+As a command-line utility:
+
+```sh
+# Install
+$ npm install -g unity-changeset
+
+# Get changeset
+$ unity-changeset 2020.2.14f1
+d81f64f5201d
+
+# List changesets
+$ unity-changeset --list
+2020.1.14f1     d81f64f5201d
+2020.1.13f1     5e24f28bfbc0
+2020.1.12f1     55b56f0a86e3
+...
+
+# List changesets (beta)
+$ unity-changeset --list-beta
+2020.2.0b13/655e1a328b90
+2020.2.0b12/92852ae685d8
+2020.2.0b11/c499c2bf2e80
+...
+
+# For more info, run with the `-h, --help` flag:
+$ unity-version -h
+```
+
+<br><br><br><br>
+
+## Contributing
+
+### Issues
+
+Issues are very valuable to this project.
+
+- Ideas are a valuable source of contributions others can make
+- Problems show where this project is lacking
+- With a question you show where contributors can improve the user experience
+
+### Pull Requests
+
+Pull requests are, a great way to get your ideas into this repository.  
+
+### Support
+
+This is an open source project that I am developing in my spare time.  
+If you like it, please support me.  
+With your support, I can spend more time on development. :)
+
+[![](https://user-images.githubusercontent.com/12690315/66942881-03686280-f085-11e9-9586-fc0b6011029f.png)](https://github.com/users/mob-sakai/sponsorship)
+
+<br><br><br><br>
+
+## License
+
+* MIT
+
+## Author
+
+* ![](https://user-images.githubusercontent.com/12690315/96986908-434a0b80-155d-11eb-8275-85138ab90afa.png) [mob-sakai](https://github.com/mob-sakai) [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai) ![GitHub followers](https://img.shields.io/github/followers/mob-sakai?style=social)
+
+## See Also
+
+* GitHub page : https://github.com/mob-sakai/unity-changeset
+* Releases : https://github.com/mob-sakai/unity-changeset/releases
+* Issue tracker : https://github.com/mob-sakai/unity-changeset/issues
+* Change log : https://github.com/mob-sakai/unity-changeset/blob/main/CHANGELOG.md
