@@ -2,6 +2,8 @@ import fetch, { RequestInfo } from 'node-fetch';
 import { JSDOM } from 'jsdom';
 import { UnityChangeset } from './unityChangeset';
 
+const UNITY_ARCHIVE_URL = 'https://unity3d.com/get-unity/download/archive';
+
 const getDocumentFromUrl = async (archiveUrl: RequestInfo) => {
   const response = await fetch(archiveUrl);
   const html = await response.text();
@@ -34,4 +36,13 @@ export const getBetaChangeset = async (version: string): Promise<UnityChangeset>
     .map(a => a.getAttribute('href') as string)
     .filter(href => UnityChangeset.isValid(href))
     .map(href => UnityChangeset.createFromHref(href))[0];
+};
+
+export const scrapeArchivedChangesets = async (): Promise<UnityChangeset[]> => {
+  const document = await getDocumentFromUrl(UNITY_ARCHIVE_URL);
+
+  return Array.from(document.querySelectorAll('a[href]'))
+    .map(a => a.getAttribute('href') as string)
+    .filter(href => UnityChangeset.isValid(href))
+    .map(href => UnityChangeset.createFromHref(href));
 };
