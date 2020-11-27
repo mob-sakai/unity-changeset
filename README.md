@@ -4,7 +4,6 @@ unity-changeset
 Get/List Unity editor changeset
 
 [![npm](https://img.shields.io/npm/v/unity-changeset)](https://www.npmjs.com/package/unity-changeset)
-[![npm (beta)](https://img.shields.io/npm/v/unity-changeset/beta)](https://www.npmjs.com/package/unity-changeset/v/beta)
 ![license](https://img.shields.io/npm/l/unity-changeset)
 ![downloads](https://img.shields.io/npm/dy/unity-changeset)
 ![release](https://github.com/mob-sakai/unity-changeset/workflows/release/badge.svg)
@@ -30,13 +29,23 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = re
     console.log(changeset);
     //=> UnityChangeset {version: '2020.1.14f1', changeset: 'd81f64f5201d'}
     console.log(changeset.toString());
-    //=> 2020.1.14f1/d81f64f5201d
+    //=> 2020.1.14f1     d81f64f5201d
     const changesets = await scrapeArchivedChangesets();
     console.dir(changesets);
-    //=> [UnityChangeset, UnityChangeset, ...]
+    //=> [
+    //     UnityChangeset { version: '2020.1.15f1', changeset: '97d0ae02d19d' },
+    //     UnityChangeset { version: '2020.1.14f1', changeset: 'd81f64f5201d' },
+    //     UnityChangeset { version: '2020.1.13f1', changeset: '5e24f28bfbc0' },
+    //     ...
+    //   ]
     const betaChangesets = await scrapeBetaChangesets();
     console.log(betaChangesets);
-    //=> [UnityChangeset, UnityChangeset, ...]
+    //=> [
+    //     UnityChangeset { version: '2020.2.0b13', changeset: '655e1a328b90' },
+    //     UnityChangeset { version: '2020.2.0b12', changeset: '92852ae685d8' },
+    //     UnityChangeset { version: '2020.2.0b11', changeset: 'c499c2bf2e80' },
+    //     ...
+    //   ]
 })();
 ```
 
