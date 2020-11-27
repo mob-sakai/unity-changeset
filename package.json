@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Get/List Unity changeset",
   "main": "lib/index.js",
+  "bin": "bin/cli.js",
   "repository": "git@github.com:mob-sakai/unity-changeset.git",
   "author": "mob-sakai <sakai861104@gmail.com>",
   "license": "MIT",
@@ -15,6 +16,7 @@
     "node": "10"
   },
   "dependencies": {
+    "cac": "^6.6.1",
     "jsdom": "^16.4.0",
     "node-fetch": "^2.6.1"
   },
