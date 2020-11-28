@@ -15,13 +15,17 @@ cli.command('<version>', 'Get a changeset for specific version')
   })());
 
 cli.command('list', 'List changesets')
-  .option('-b, --beta', 'List beta changesets')
+  .option('-b, --beta', 'List alpha/beta changesets')
+  .option('--versions', 'Output only the available unity version')
   .action(options => (async () => {
     var results = options.listBeta
       ? await scrapeArchivedChangesets()
       : await scrapeArchivedChangesets();
 
-    console.log(changesets.map(c => c.toString()).join('\n'));
+    if (options.versions)
+      console.log(results.map(r => r.version).join('\n'));
+    else
+      console.log(results.map(r => r.toString()).join('\n'));
   })());
 
 cli
@@ -30,6 +34,7 @@ cli
   .example('unity-changeset 2021.1.0a7')
   .example('unity-changeset list')
   .example('unity-changeset list --beta')
+  .example('unity-changeset list --versions')
   .help()
   .version('1.1.0');
 
