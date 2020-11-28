@@ -18,8 +18,9 @@ export const getUnityChangeset = async (version: string): Promise<UnityChangeset
     case 'f':
       return await getArchivedChangeset(version);
     case 'a':
+      return await getBetaChangeset(version, 'alpha');
     case 'b':
-      return await getBetaChangeset(version)
+      return await getBetaChangeset(version, 'beta');
     default:
       throw Error('The given version was not supported')
   }
@@ -30,8 +31,8 @@ export const getArchivedChangeset = async (version: string): Promise<UnityChange
   return versions.filter(c => c.version === version)[0];
 };
 
-export const getBetaChangeset = async (version: string): Promise<UnityChangeset> => {
-  const document = await getDocumentFromUrl(`https://unity3d.com/unity/beta/${version}`);
+export const getBetaChangeset = async (version: string, channel: string): Promise<UnityChangeset> => {
+  const document = await getDocumentFromUrl(`https://unity3d.com/unity/${channel}/${version}`);
 
   return Array.from(document.querySelectorAll('a[href]'))
     .map(a => a.getAttribute('href') as string)

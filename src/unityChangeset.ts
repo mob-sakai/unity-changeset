@@ -1,11 +1,9 @@
 const REGEXP_HUB_LINK = /^unityhub:\/\/(\d{4}\.\d+\.\d+(a|b|f)\d+)\/(\w{12})$/
 
-export interface UnityChangeset {
-  version: string;
-  changeset: string;
-}
-
 export class UnityChangeset {
+  version: string = '';
+  changeset: string = '';
+
   constructor(version: string, changeset: string) {
     Object.assign(this, { version, changeset });
   }
