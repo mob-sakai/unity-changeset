@@ -55,22 +55,29 @@ As a command-line utility:
 # Install
 $ npm install -g unity-changeset
 
-# Get changeset
+# Get a changeset for specific version
 $ unity-changeset 2020.2.14f1
 d81f64f5201d
 
 # List changesets
-$ unity-changeset --list
+$ unity-changeset list
 2020.1.14f1     d81f64f5201d
 2020.1.13f1     5e24f28bfbc0
 2020.1.12f1     55b56f0a86e3
 ...
 
 # List changesets (beta)
-$ unity-changeset --list-beta
-2020.2.0b13/655e1a328b90
-2020.2.0b12/92852ae685d8
-2020.2.0b11/c499c2bf2e80
+$ unity-changeset list --beta
+2020.2.0b13     655e1a328b90
+2020.2.0b12     92852ae685d8
+2020.2.0b11     c499c2bf2e80
+...
+
+# List the available Unity versions
+$ unity-changeset list --versions
+2020.1.14f1
+2020.1.13f1
+2020.1.12f1
 ...
 
 # For more info, run with the `-h, --help` flag:
