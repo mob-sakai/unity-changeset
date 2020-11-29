@@ -15,6 +15,7 @@ cli.command('<version>', 'Get a changeset for specific version')
   })());
 
 cli.command('list', 'List changesets')
+  .option('--json', 'Output in json format')
   .option('-b, --beta', 'List alpha/beta changesets')
   .option('--versions', 'Output only the available unity version')
   .action(options => (async () => {
@@ -22,10 +23,18 @@ cli.command('list', 'List changesets')
       ? await scrapeArchivedChangesets()
       : await scrapeArchivedChangesets();
 
-    if (options.versions)
-      console.log(results.map(r => r.version).join('\n'));
-    else
-      console.log(results.map(r => r.toString()).join('\n'));
+    if (options.json) {
+      if (options.versions)
+        console.log(JSON.stringify(results.map(r => r.version)));
+      else
+        console.log(JSON.stringify(results));
+    }
+    else {
+      if (options.versions)
+        console.log(results.map(r => r.version).join('\n'));
+      else
+        console.log(results.map(r => r.toString()).join('\n'));
+    }
   })());
 
 cli
