@@ -28,6 +28,7 @@ cli.command('<version>', 'Get a changeset for specific version')
 cli.command('list', 'List changesets')
   .option('--min <version>', 'Minimum version (included)')
   .option('--max <version>', 'Maximum version (included)')
+  .option('--grep <version>', 'Grep version')
   .option('--json', 'Output in json format')
   .option('--all', 'List all changesets (alpha/beta included)')
   .option('--beta', 'List alpha/beta changesets')
@@ -42,10 +43,9 @@ cli.command('list', 'List changesets')
     // Filter by min/max.
     var min = options.min ? toNumber(options.min) : Number.MIN_VALUE;
     var max = options.max ? toNumber(options.max) : Number.MAX_VALUE;
-    results = results.filter(r => {
-      const n = toNumber(r.version);
-      return min <= n && n <= max;
-    });
+    results = results
+      .filter(r => r.version.includes(options.grep || ''))
+      .filter(r => min <= toNumber(r.version) && toNumber(r.version) <= max);
 
     if (options.json) {
       if (options.versions)
@@ -69,7 +69,7 @@ cli
   .example('unity-changeset list --beta')
   .example('unity-changeset list --versions')
   .help()
-  .version('1.1.0');
+  .version('1.2.0');
 
 if (process.argv.length < 3) {
   cli.outputHelp(true);
