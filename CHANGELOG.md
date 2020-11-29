@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/mob-sakai/unity-changeset/compare/v1.1.0...v1.2.0) (2020-11-29)
+
+
+### Features
+
+* **cli:** add `--grep` option for `list` ([678dbae](https://github.com/mob-sakai/unity-changeset/commit/678dbae0bc1881e4b448451b68503ae05b288513))
+
 # [1.1.0](https://github.com/mob-sakai/unity-changeset/compare/v1.0.0...v1.1.0) (2020-11-29)
 
 
