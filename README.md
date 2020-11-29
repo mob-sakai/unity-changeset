@@ -61,6 +61,7 @@ Usage: List changesets
 Options:
   --min <version>  Minimum version (included) 
   --max <version>  Maximum version (included) 
+  --grep <version> Grep version 
   --json           Output in json format 
   --all            List all changesets (alpha/beta included) 
   --beta           List alpha/beta changesets 
@@ -99,6 +100,14 @@ $ unity-changeset list --versions
 # List Unity 2018.3 or later
 $ unity-changeset list --min 2018.3
 2020.1.14f1     97d0ae02d19d
+...
+2018.3.1f1	    bb579dc42f1d
+2018.3.0f2	    6e9a27477296
+
+# List Unity 2018.3.x
+$ unity-changeset list --grep 2018.3
+2018.3.14f1     d0e9f15437b1
+2018.3.13f1     06548a9e9582
 ...
 2018.3.1f1	    bb579dc42f1d
 2018.3.0f2	    6e9a27477296
