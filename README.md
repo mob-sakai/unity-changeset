@@ -51,6 +51,22 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = re
 
 As a command-line utility:
 
+```
+Usage: Get a changeset for specific version
+  $ unity-changeset <version>
+
+Usage: List changesets
+  $ unity-changeset list [options]
+
+Options:
+  --min <version>  Minimum version (included) 
+  --max <version>  Maximum version (included) 
+  --json           Output in json format 
+  --all            List all changesets (alpha/beta included) 
+  --beta           List alpha/beta changesets 
+  --versions       Output only the available unity version 
+```
+
 ```sh
 # Install
 $ npm install -g unity-changeset
@@ -79,6 +95,13 @@ $ unity-changeset list --versions
 2020.1.13f1
 2020.1.12f1
 ...
+
+# List Unity 2018.3 or later
+$ unity-changeset list --min 2018.3
+2020.1.14f1     97d0ae02d19d
+...
+2018.3.1f1	    bb579dc42f1d
+2018.3.0f2	    6e9a27477296
 
 # For more info, run with the `-h, --help` flag:
 $ unity-version -h
