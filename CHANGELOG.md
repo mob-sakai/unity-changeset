@@ -1,3 +1,14 @@
+# [1.1.0](https://github.com/mob-sakai/unity-changeset/compare/v1.0.0...v1.1.0) (2020-11-29)
+
+
+### Features
+
+* **cli:** add `--all` option for `list` ([9d67882](https://github.com/mob-sakai/unity-changeset/commit/9d67882d7821f7ab50dad46132498f9bcfe5128f))
+* **cli:** add `--json` option for `list` ([8981d23](https://github.com/mob-sakai/unity-changeset/commit/8981d23a12ac7e8b3ad0cd16503e325566617347))
+* **cli:** add `--min` `--max` option for `list` ([2a42019](https://github.com/mob-sakai/unity-changeset/commit/2a42019a43bb0a3f93a74b920c5b2f4b8e5df30f))
+* **cli:** add `--versions` option for `list` ([643fc60](https://github.com/mob-sakai/unity-changeset/commit/643fc60e3c7f09aef00b96f7e2e2c6fda3ae703c))
+* get unity changeset (alpha) ([2fd12c4](https://github.com/mob-sakai/unity-changeset/commit/2fd12c4212c1ca13c03c86004f83172ae9d0e5ef))
+
 # 1.0.0 (2020-11-27)
 
 
