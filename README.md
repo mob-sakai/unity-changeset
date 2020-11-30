@@ -59,13 +59,15 @@ Usage: List changesets
   $ unity-changeset list [options]
 
 Options:
-  --min <version>  Minimum version (included) 
-  --max <version>  Maximum version (included) 
-  --grep <version> Grep version 
-  --json           Output in json format 
-  --all            List all changesets (alpha/beta included) 
-  --beta           List alpha/beta changesets 
-  --versions       Output only the available unity version 
+  --min <version>  Minimum version (included)
+  --max <version>  Maximum version (included)
+  --grep <version> Grep version
+  --json           Output in json format
+  --pretty-json    Output in pretty json format
+  --all            List all changesets (alpha/beta included)
+  --beta           List alpha/beta changesets
+  --versions       Output only the available Unity versions
+  --minor-versions Output only the available Unity minor versions
 ```
 
 ```sh
@@ -83,6 +85,24 @@ $ unity-changeset list
 2020.1.12f1     55b56f0a86e3
 ...
 
+# List changesets in json format
+$ unity-changeset list --json
+[{"version":"2020.1.15f1","changeset":"97d0ae02d19d"},{"version":"2020.1.14f1","changeset":"d81f64f5201d"},...]
+
+# List changesets in pretty json format
+$ unity-changeset list --pretty-json
+[
+  {
+    "version": "2020.1.15f1",
+    "changeset": "97d0ae02d19d"
+  },
+  {
+    "version": "2020.1.14f1",
+    "changeset": "d81f64f5201d"
+  },
+  ...
+]
+
 # List changesets (beta)
 $ unity-changeset list --beta
 2020.2.0b13     655e1a328b90
@@ -97,20 +117,27 @@ $ unity-changeset list --versions
 2020.1.12f1
 ...
 
-# List Unity 2018.3 or later
-$ unity-changeset list --min 2018.3
-2020.1.14f1     97d0ae02d19d
+# List Unity 2018.3 or later, and 2019.1 or earlier
+$ unity-changeset list --min 2018.3 --max 2019.1
+2019.1.14f1     148b5891095a
 ...
 2018.3.1f1	    bb579dc42f1d
 2018.3.0f2	    6e9a27477296
 
-# List Unity 2018.3.x
+# List all Unity 2018.3 versions
 $ unity-changeset list --grep 2018.3
 2018.3.14f1     d0e9f15437b1
 2018.3.13f1     06548a9e9582
 ...
 2018.3.1f1	    bb579dc42f1d
 2018.3.0f2	    6e9a27477296
+
+# List the available Unity minor versions
+$ unity-changeset list --minor-versions
+2020.1
+...
+2017.2
+2017.1
 
 # For more info, run with the `-h, --help` flag:
 $ unity-version -h
