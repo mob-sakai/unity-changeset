@@ -19,7 +19,7 @@ npm install unity-changeset
 
 ## Usage
 
-As a node module:
+### As a node module:
 
 ```js
 const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = require('unity-changeset');
@@ -49,7 +49,7 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = re
 })();
 ```
 
-As a command-line utility:
+### As a command-line utility:
 
 ```
 Usage: Get a changeset for specific version
@@ -74,22 +74,22 @@ Options:
 # Install
 $ npm install -g unity-changeset
 
-# Get a changeset for specific version
+# Get a changeset for specific version:
 $ unity-changeset 2020.2.14f1
 d81f64f5201d
 
-# List changesets
+# List changesets:
 $ unity-changeset list
 2020.1.14f1     d81f64f5201d
 2020.1.13f1     5e24f28bfbc0
 2020.1.12f1     55b56f0a86e3
 ...
 
-# List changesets in json format
+# List changesets in json format:
 $ unity-changeset list --json
 [{"version":"2020.1.15f1","changeset":"97d0ae02d19d"},{"version":"2020.1.14f1","changeset":"d81f64f5201d"},...]
 
-# List changesets in pretty json format
+# List changesets in pretty json format:
 $ unity-changeset list --pretty-json
 [
   {
@@ -103,28 +103,28 @@ $ unity-changeset list --pretty-json
   ...
 ]
 
-# List changesets (beta)
+# List changesets (beta):
 $ unity-changeset list --beta
 2020.2.0b13     655e1a328b90
 2020.2.0b12     92852ae685d8
 2020.2.0b11     c499c2bf2e80
 ...
 
-# List the available Unity versions
+# List the available Unity versions:
 $ unity-changeset list --versions
 2020.1.14f1
 2020.1.13f1
 2020.1.12f1
 ...
 
-# List Unity 2018.3 or later, and 2019.1 or earlier
+# List Unity 2018.3 or later, and 2019.1 or earlier:
 $ unity-changeset list --min 2018.3 --max 2019.1
 2019.1.14f1     148b5891095a
 ...
 2018.3.1f1	    bb579dc42f1d
 2018.3.0f2	    6e9a27477296
 
-# List all Unity 2018.3 versions
+# List all Unity 2018.3 versions:
 $ unity-changeset list --grep 2018.3
 2018.3.14f1     d0e9f15437b1
 2018.3.13f1     06548a9e9582
@@ -132,7 +132,7 @@ $ unity-changeset list --grep 2018.3
 2018.3.1f1	    bb579dc42f1d
 2018.3.0f2	    6e9a27477296
 
-# List the available Unity minor versions
+# List the available Unity minor versions:
 $ unity-changeset list --minor-versions
 2020.1
 ...
@@ -141,6 +141,21 @@ $ unity-changeset list --minor-versions
 
 # For more info, run with the `-h, --help` flag:
 $ unity-version -h
+```
+
+### Install a specific version of Unity via UnityHub
+
+```sh
+# /path/of/unity/hub/executor:
+#   Windows: C:\\Program\ Files\\Unity\ Hub\\Unity\ Hub.exe
+#   MacOS: /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub
+
+# Show help:
+$ /path/of/unity/hub/executor -- --headless help
+
+# Install Unity with iOS and Android modules:
+$ version=2020.1.14f1
+$ /path/of/unity/hub/executor install --no-sandbox --headless --version ${version} --changeset `unity-changeset ${version}` --module ios,android
 ```
 
 <br><br><br><br>
