@@ -2,6 +2,7 @@
 
 const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = require("../dist/index");
 const cli = require('cac')();
+const { pkgVersion: version } = require('../package.json');
 
 const toNumber = function (version, max = false) {
   const match = version.toString().match(/^(\d+)\.*(\d*)\.*(\d*)(\w*)(\d*)$/);
@@ -96,7 +97,7 @@ cli
   .example('unity-changeset list --beta')
   .example('unity-changeset list --versions')
   .help()
-  .version('1.2.0');
+  .version(pkgVersion);
 
 if (process.argv.length < 3) {
   cli.outputHelp(true);
