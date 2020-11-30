@@ -1,3 +1,17 @@
+# [1.3.0](https://github.com/mob-sakai/unity-changeset/compare/v1.2.0...v1.3.0) (2020-11-30)
+
+
+### Bug Fixes
+
+* **cli:** get the package version from `package.json` ([00f54ad](https://github.com/mob-sakai/unity-changeset/commit/00f54ad0517c08f527ebc4bc0f279008b84b1895))
+* `--max` option considers minor, patch and suffix ([8c51587](https://github.com/mob-sakai/unity-changeset/commit/8c51587ccb8196d526ee16edbc09348f1750c4b1))
+
+
+### Features
+
+* **cli:** add `--minor-versions` option for `list` ([f0062cb](https://github.com/mob-sakai/unity-changeset/commit/f0062cba981db747226b324c930e21c1405abc53))
+* **cli:** add `--pretty-json` option for `list` ([cf45429](https://github.com/mob-sakai/unity-changeset/commit/cf45429e386bb41b544e7e1a0b6fc245152ba962))
+
 # [1.2.0](https://github.com/mob-sakai/unity-changeset/compare/v1.1.0...v1.2.0) (2020-11-29)
 
 
