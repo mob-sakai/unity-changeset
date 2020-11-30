@@ -14,6 +14,20 @@ const toNumber = function (version, max = false) {
     + parseInt(match[5] || (max ? '99' : '0'));
 };
 
+const toMinor = function (version) {
+  const match = version.toString().match(/^(\d+)\.*(\d*)\.*(\d*)(\w*)(\d*)$/);
+  if (match === null) return '';
+
+  return `${match[1]}.${match[2]}`;
+};
+
+const groupBy = (array, getKey) =>
+  array.reduce((obj, cur, idx, src) => {
+    const key = getKey(cur, idx, src);
+    (obj[key] || (obj[key] = [])).push(cur);
+    return obj;
+  }, {});
+
 cli.command('<version>', 'Get a changeset for specific version')
   .action(version => (async () => {
     try {
@@ -32,7 +46,8 @@ cli.command('list', 'List changesets')
   .option('--json', 'Output in json format')
   .option('--all', 'List all changesets (alpha/beta included)')
   .option('--beta', 'List alpha/beta changesets')
-  .option('--versions', 'Output only the available unity version')
+  .option('--versions', 'Output only the available Unity versions')
+  .option('--minor-versions', 'Output only the available Unity minor versions')
   .action(options => (async () => {
     var results = options.all
       ? (await scrapeArchivedChangesets()).concat(await scrapeBetaChangesets())
@@ -50,8 +65,14 @@ cli.command('list', 'List changesets')
         return min <= n && n <= max;
       });
 
+    // Group by minor version
+    if (options.minorVersions) {
+      results.forEach(r => r.version = toMinor(r.version))
+      results = Object.values(groupBy(results, r => r.version)).map(g => g[0]);
+    }
+
     // Output versions
-    if (options.versions)
+    if (options.versions || options.minorVersions)
       results = results.map(r => r.version);
 
     // Output in json format or plain
