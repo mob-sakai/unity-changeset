@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/mob-sakai/unity-changeset/compare/v1.3.0...v1.3.1) (2020-11-30)
+
+
+### Bug Fixes
+
+* package version is missing ([c94c1b2](https://github.com/mob-sakai/unity-changeset/commit/c94c1b2cc172b592081d8eed5f5f489b4c5f84af))
+
 # [1.3.0](https://github.com/mob-sakai/unity-changeset/compare/v1.2.0...v1.3.0) (2020-11-30)
 
 
