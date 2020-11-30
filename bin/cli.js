@@ -3,19 +3,19 @@
 const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = require("../dist/index");
 const cli = require('cac')();
 
-toNumber = function (version) {
+toNumber = function (version, max = false) {
   const match = version.toString().match(/^(\d+)\.*(\d*)\.*(\d*)(\w*)(\d*)$/);
   if (match === null) return 0;
 
-  return parseInt(match[1] || '0') * 100 * 100 * 100 * 100
-    + parseInt(match[2] || '0') * 100 * 100 * 100
-    + parseInt(match[3] || '0') * 100 * 100
-    + ((match[4] || 'a').toUpperCase().charCodeAt(0) - 65) * 100
-    + parseInt(match[5] || '0');
+  return parseInt(match[1] || (max ? '9999' : '0')) * 100 * 100 * 100 * 100
+    + parseInt(match[2] || (max ? '99' : '0')) * 100 * 100 * 100
+    + parseInt(match[3] || (max ? '99' : '0')) * 100 * 100
+    + ((match[4] || (max ? 'z' : 'a')).toUpperCase().charCodeAt(0) - 65) * 100
+    + parseInt(match[5] || (max ? '99' : '0'));
 };
 
 cli.command('<version>', 'Get a changeset for specific version')
-  .action((version, options) => (async () => {
+  .action(version => (async () => {
     try {
       var changeset = await getUnityChangeset(version);
       console.log(changeset.changeset);
@@ -42,10 +42,13 @@ cli.command('list', 'List changesets')
 
     // Filter by min/max.
     var min = options.min ? toNumber(options.min) : Number.MIN_VALUE;
-    var max = options.max ? toNumber(options.max) : Number.MAX_VALUE;
+    var max = options.max ? toNumber(options.max, true) : Number.MAX_VALUE;
     results = results
-      .filter(r => r.version.includes(options.grep || ''))
-      .filter(r => min <= toNumber(r.version) && toNumber(r.version) <= max);
+      .filter(r => options.grep ? r.version.includes(options.grep) : true)
+      .filter(r => {
+        const n = toNumber(r.version);
+        return min <= n && n <= max;
+      });
 
     if (options.json) {
       if (options.versions)
