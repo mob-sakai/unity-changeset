@@ -44,6 +44,7 @@ cli.command('list', 'List changesets')
   .option('--max <version>', 'Maximum version (included)')
   .option('--grep <version>', 'Grep version')
   .option('--json', 'Output in json format')
+  .option('--pretty-json', 'Output in pretty json format')
   .option('--all', 'List all changesets (alpha/beta included)')
   .option('--beta', 'List alpha/beta changesets')
   .option('--versions', 'Output only the available Unity versions')
@@ -76,7 +77,10 @@ cli.command('list', 'List changesets')
       results = results.map(r => r.version);
 
     // Output in json format or plain
-    if (options.json) {
+    if (options.prettyJson) {
+      console.log(JSON.stringify(results, null, '  '));
+    }
+    else if (options.json) {
       console.log(JSON.stringify(results));
     }
     else {
