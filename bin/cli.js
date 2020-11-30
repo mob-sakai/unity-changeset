@@ -3,7 +3,7 @@
 const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = require("../dist/index");
 const cli = require('cac')();
 
-toNumber = function (version, max = false) {
+const toNumber = function (version, max = false) {
   const match = version.toString().match(/^(\d+)\.*(\d*)\.*(\d*)(\w*)(\d*)$/);
   if (match === null) return 0;
 
@@ -50,17 +50,16 @@ cli.command('list', 'List changesets')
         return min <= n && n <= max;
       });
 
+    // Output versions
+    if (options.versions)
+      results = results.map(r => r.version);
+
+    // Output in json format or plain
     if (options.json) {
-      if (options.versions)
-        console.log(JSON.stringify(results.map(r => r.version)));
-      else
-        console.log(JSON.stringify(results));
+      console.log(JSON.stringify(results));
     }
     else {
-      if (options.versions)
-        console.log(results.map(r => r.version).join('\n'));
-      else
-        console.log(results.map(r => r.toString()).join('\n'));
+      console.log(results.map(r => r.toString()).join('\n'));
     }
   })());
 
