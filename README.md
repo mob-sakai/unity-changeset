@@ -103,11 +103,20 @@ $ unity-changeset list --pretty-json
   ...
 ]
 
-# List changesets (beta):
+# List changesets (alpha/beta):
 $ unity-changeset list --beta
 2020.2.0b13     655e1a328b90
 2020.2.0b12     92852ae685d8
 2020.2.0b11     c499c2bf2e80
+...
+
+# List changesets (all):
+$ unity-changeset list --all
+2020.2.0b13     655e1a328b90
+2020.2.0b12     92852ae685d8
+...
+2020.1.14f1     d81f64f5201d
+2020.1.13f1     5e24f28bfbc0
 ...
 
 # List the available Unity versions:
@@ -115,6 +124,13 @@ $ unity-changeset list --versions
 2020.1.14f1
 2020.1.13f1
 2020.1.12f1
+...
+
+# List the available Unity versions (alpha/beta):
+$ unity-changeset list --beta --versions
+2020.2.0b13
+2020.2.0b12
+2020.2.0b11
 ...
 
 # List Unity 2018.3 or later, and 2019.1 or earlier:
@@ -146,16 +162,18 @@ $ unity-version -h
 ### Install a specific version of Unity via UnityHub
 
 ```sh
-# /path/of/unity/hub/executor:
+# /path/to/unity/hub:
 #   Windows: C:\\Program\ Files\\Unity\ Hub\\Unity\ Hub.exe
 #   MacOS: /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub
 
-# Show help:
-$ /path/of/unity/hub/executor -- --headless help
+# Show UnityHub help:
+$ /path/to/unity/hub -- --headless help
 
-# Install Unity with iOS and Android modules:
-$ version=2020.1.14f1
-$ /path/of/unity/hub/executor install --no-sandbox --headless --version ${version} --changeset `unity-changeset ${version}` --module ios,android
+# Install Unity 2020.1.15f1 with modules for iOS and Android:
+$ /path/to/unity/hub -- --headless install \
+  --version 2020.1.15f1 \
+  --changeset `unity-changeset 2020.1.15f1` \
+  --module ios,android
 ```
 
 <br><br><br><br>
