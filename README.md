@@ -11,15 +11,15 @@ Get/List Unity editor changeset
 
 <br><br><br><br>
 
-## Install
+## Usage as a node module
+
+### Install
 
 ```sh
-npm install unity-changeset
+$ npm install unity-changeset
 ```
 
-## Usage
-
-### As a node module:
+### Example
 
 ```js
 const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = require('unity-changeset');
@@ -49,7 +49,7 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = re
 })();
 ```
 
-### As a command-line utility:
+## Usage as a command-line utility
 
 ```
 Usage: Get a changeset for specific version
@@ -68,17 +68,26 @@ Options:
   --beta           List alpha/beta changesets
   --versions       Output only the available Unity versions
   --minor-versions Output only the available Unity minor versions
+  --latest-patch   Output only the latest Unity patch versions
 ```
 
+### Install
+
 ```sh
-# Install
 $ npm install -g unity-changeset
+```
 
 # Get a changeset for specific version:
+
+```sh
 $ unity-changeset 2020.2.14f1
 d81f64f5201d
+```
 
-# List changesets:
+
+### Get a changeset for specific version
+
+```sh
 $ unity-changeset list
 2020.1.14f1     d81f64f5201d
 2020.1.13f1     5e24f28bfbc0
@@ -155,8 +164,12 @@ $ unity-changeset list --minor-versions
 2017.2
 2017.1
 
-# For more info, run with the `-h, --help` flag:
-$ unity-version -h
+# List the latest Unity patch versions:
+$ unity-changeset list --latest-patch
+2020.1.14f1     d81f64f5201d
+...
+2017.2.5f1      588dc79c95ed
+2017.1.5f1      9758a36cfaa6
 ```
 
 ### Install a specific version of Unity via UnityHub
