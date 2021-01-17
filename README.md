@@ -16,7 +16,7 @@ Get/List Unity editor changeset
 ### Install
 
 ```sh
-$ npm install unity-changeset
+npm install unity-changeset
 ```
 
 ### Example
@@ -49,9 +49,20 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = re
 })();
 ```
 
+<br><br><br><br>
+
 ## Usage as a command-line utility
 
+### Install
+
+```sh
+npm install -g unity-changeset
 ```
+
+### Display help
+
+```
+$ unity-changeset -h
 Usage: Get a changeset for specific version
   $ unity-changeset <version>
 
@@ -71,13 +82,8 @@ Options:
   --latest-patch   Output only the latest Unity patch versions
 ```
 
-### Install
 
-```sh
-$ npm install -g unity-changeset
-```
-
-# Get a changeset for specific version:
+### Get a changeset for specific version:
 
 ```sh
 $ unity-changeset 2020.2.14f1
