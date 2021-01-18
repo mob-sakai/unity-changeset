@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/mob-sakai/unity-changeset/compare/v1.4.0...v1.4.1) (2021-01-18)
+
+
+### Bug Fixes
+
+* **cli:** with `--latest-patch` option, scrape beta changesets faster ([f38abf2](https://github.com/mob-sakai/unity-changeset/commit/f38abf2c667db97bf1e726cefa53aefc6532331b))
+
 # [1.4.0](https://github.com/mob-sakai/unity-changeset/compare/v1.3.1...v1.4.0) (2021-01-17)
 
 
