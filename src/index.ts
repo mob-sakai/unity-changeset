@@ -49,7 +49,7 @@ export const scrapeArchivedChangesets = async (): Promise<UnityChangeset[]> => {
     .map(href => UnityChangeset.createFromHref(href));
 };
 
-export const scrapeBetaChangesets = async (): Promise<UnityChangeset[]> => {
+export const scrapeBetaChangesets = async (onlyLatestPatch: boolean = false): Promise<UnityChangeset[]> => {
   const document = await getDocumentFromUrl(UNITY_BETA_URL);
 
   const betas = new Set<string>();
@@ -60,12 +60,15 @@ export const scrapeBetaChangesets = async (): Promise<UnityChangeset[]> => {
 
   const downloads = new Set<string>();
   for (const beta of betas) {
+    // onlyLatestPatch: Take only first.
+    const takeCount = onlyLatestPatch ? 1 : undefined;
     // [beta page] e.g. 'https://unity3d.com/beta/2020.2b'
     const betaPage = await getDocumentFromUrl(`https://unity3d.com${beta}`);
     Array.from(betaPage.querySelectorAll('a[href]'))
       .map((a) => a.getAttribute('href') as string)
       // [filter] e.g. '/unity/beta/2020.2.0b13'
       .filter((href) => /^\/unity\/(alpha|beta)\/\d{4}\.\d+\.\d+(a|b)\d+$/.test(href))
+      .slice(0, takeCount)
       .forEach((href) => downloads.add(href));
   }
 
