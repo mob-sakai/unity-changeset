@@ -82,6 +82,10 @@ cli.command('list', 'List changesets')
     if (options.versions || options.minorVersions)
       results = results.map(r => r.version);
 
+    // If the result is empty, do not output anything
+    if (results.length == 0)
+      return;
+
     // Output in json format or plain
     if (options.prettyJson) {
       console.log(JSON.stringify(results, null, '  '));
