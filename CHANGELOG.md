@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/mob-sakai/unity-changeset/compare/v1.4.1...v1.4.2) (2021-01-20)
+
+
+### Bug Fixes
+
+* if the result is empty, do not output anything ([498177d](https://github.com/mob-sakai/unity-changeset/commit/498177d98777c38577b62716428e45823c5439fc))
+
 ## [1.4.1](https://github.com/mob-sakai/unity-changeset/compare/v1.4.0...v1.4.1) (2021-01-18)
 
 
