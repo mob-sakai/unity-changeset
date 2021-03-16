@@ -15,20 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/cache@v2
+      - uses: cycjimmy/semantic-release-action@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Build
-        run: |
-          npm ci
-          npm run build
-
-      - name: Release
-        run: npm run release
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
