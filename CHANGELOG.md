@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/mob-sakai/unity-changeset/compare/v1.4.2...v1.4.3) (2021-06-13)
+
+
+### Bug Fixes
+
+* update dependencies ([02598a7](https://github.com/mob-sakai/unity-changeset/commit/02598a75b65d68d75bb6ac7db9706837e144384d))
+
 ## [1.4.2](https://github.com/mob-sakai/unity-changeset/compare/v1.4.1...v1.4.2) (2021-01-20)
 
 
