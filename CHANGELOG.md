@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/mob-sakai/unity-changeset/compare/v1.4.3...v1.4.4) (2021-06-19)
+
+
+### Bug Fixes
+
+* update package-lock.json ([05be3cd](https://github.com/mob-sakai/unity-changeset/commit/05be3cd1d7f930b6d83986e2f59529071a927420))
+
 ## [1.4.3](https://github.com/mob-sakai/unity-changeset/compare/v1.4.2...v1.4.3) (2021-06-13)
 
 
