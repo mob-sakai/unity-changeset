@@ -3,10 +3,10 @@ name: release
 on:
   push:
     branches:
-      - beta
       - main
-    tags:
-      - "!*"
+      - beta
+    tags-ignore:
+      - "**"
 
 jobs:
   release:
@@ -15,11 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - run: |
+          npm ci
+          npm run build
+
       - uses: cycjimmy/semantic-release-action@v2
         with:
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
