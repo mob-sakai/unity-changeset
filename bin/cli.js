@@ -51,6 +51,7 @@ cli.command('list', 'List changesets')
   .option('--versions', 'Output only the available Unity versions')
   .option('--minor-versions', 'Output only the available Unity minor versions')
   .option('--latest-patch', 'Output only the latest Unity patch versions')
+  .option('--oldest-patch', 'Output only the oldest Unity patch versions')
   .action(options => (async () => {
     var results = options.all
       ? (await scrapeArchivedChangesets()).concat(await scrapeBetaChangesets(options.latestPatch))
@@ -76,6 +77,10 @@ cli.command('list', 'List changesets')
     // Group by minor version and get latest patch
     else if (options.latestPatch) {
       results = Object.values(groupBy(results, r => toMinor(r.version))).map(g => g[0]);
+    }
+    // Group by minor version and get oldest patch
+    else if (options.oldestPatch) {
+      results = Object.values(groupBy(results, r => toMinor(r.version))).map(g => g[g.length - 1]);
     }
 
     // Output versions
