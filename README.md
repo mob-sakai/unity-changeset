@@ -80,6 +80,7 @@ Options:
   --versions       Output only the available Unity versions
   --minor-versions Output only the available Unity minor versions
   --latest-patch   Output only the latest Unity patch versions
+  --oldest-patch   Output only the oldest Unity patch versions
 ```
 
 
