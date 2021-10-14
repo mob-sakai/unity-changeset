@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/mob-sakai/unity-changeset/compare/v1.4.5...v1.5.0) (2021-10-14)
+
+
+### Features
+
+* **cli:** add `--oldest-patch` option for `list` ([9cb4fe5](https://github.com/mob-sakai/unity-changeset/commit/9cb4fe57a29aa6b0990a46ab8f2f01743e7091e7))
+
 ## [1.4.5](https://github.com/mob-sakai/unity-changeset/compare/v1.4.4...v1.4.5) (2021-06-19)
 
 
