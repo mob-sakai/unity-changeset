@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/mob-sakai/unity-changeset/compare/v1.5.0...v1.6.0) (2021-10-23)
+
+
+### Features
+
+* **cli:** add `--latest-lifecycle` option for `list` ([a4d51f7](https://github.com/mob-sakai/unity-changeset/commit/a4d51f7eb16b68545b8ea74e17f7c95c1870a4c5))
+
 # [1.5.0](https://github.com/mob-sakai/unity-changeset/compare/v1.4.5...v1.5.0) (2021-10-14)
 
 
