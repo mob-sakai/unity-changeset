@@ -70,17 +70,18 @@ Usage: List changesets
   $ unity-changeset list [options]
 
 Options:
-  --min <version>  Minimum version (included)
-  --max <version>  Maximum version (included)
-  --grep <version> Grep version
-  --json           Output in json format
-  --pretty-json    Output in pretty json format
-  --all            List all changesets (alpha/beta included)
-  --beta           List alpha/beta changesets
-  --versions       Output only the available Unity versions
-  --minor-versions Output only the available Unity minor versions
-  --latest-patch   Output only the latest Unity patch versions
-  --oldest-patch   Output only the oldest Unity patch versions
+  --min <version>     Minimum version (included)
+  --max <version>     Maximum version (included)
+  --grep <version>    Grep version
+  --json              Output in json format
+  --pretty-json       Output in pretty json format
+  --all               List all changesets (alpha/beta included)
+  --beta              List alpha/beta changesets
+  --versions          Output only the available Unity versions
+  --minor-versions    Output only the available Unity minor versions
+  --latest-patch      Output only the latest Unity patch versions
+  --oldest-patch      Output only the oldest Unity patch versions
+  --oldest-lifecycle  Output only the latest lifecycle Unity patch versions
 ```
 
 
