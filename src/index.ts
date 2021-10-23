@@ -22,7 +22,7 @@ export const getUnityChangeset = async (version: string): Promise<UnityChangeset
     case 'b':
       return await getBetaChangeset(version, 'beta');
     default:
-      throw Error('The given version was not supported')
+      throw Error(`The given life-cycle '${match?.[1]}' (in ${version}) was not supported`)
   }
 };
 
@@ -85,4 +85,8 @@ export const scrapeBetaChangesets = async (onlyLatestPatch: boolean = false): Pr
 
   return Array.from(hrefs)
     .map(href => UnityChangeset.createFromHref(href));
+};
+
+export const toNumber = (version: string, max: boolean): number => {
+  return UnityChangeset.toNumber(version, max);
 };
