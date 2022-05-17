@@ -37,9 +37,9 @@ cli.command('list', 'List changesets')
   .option('--latest-lifecycle', 'Output only the latest lifecycle Unity patch versions')
   .action(options => (async () => {
     var results = options.all
-      ? (await scrapeArchivedChangesets()).concat(await scrapeBetaChangesets(options.latestPatch))
+      ? (await scrapeArchivedChangesets()).concat(await scrapeBetaChangesets())
       : options.beta
-        ? await scrapeBetaChangesets(options.latestPatch)
+        ? await scrapeBetaChangesets()
         : await scrapeArchivedChangesets();
 
     // Filter by min/max.
