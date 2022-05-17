@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/mob-sakai/unity-changeset/compare/v1.6.0...v1.7.0) (2022-05-17)
+
+
+### Bug Fixes
+
+* downgrade 'node-fetch' for commonjs ([5336b55](https://github.com/mob-sakai/unity-changeset/commit/5336b5509250530d95ded7cd154696808ff7b86a))
+
+
+### Features
+
+* get alpha/beta versions from rss feed ([6decbd8](https://github.com/mob-sakai/unity-changeset/commit/6decbd846769bd336e11c1aa6a9f83f64fd3c1d6))
+
 # [1.6.0](https://github.com/mob-sakai/unity-changeset/compare/v1.5.0...v1.6.0) (2021-10-23)
 
 
