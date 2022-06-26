@@ -1,69 +1,64 @@
-import fetch, { RequestInfo } from 'node-fetch';
-import { JSDOM } from 'jsdom';
-import { UnityChangeset } from './unityChangeset';
+import { UnityChangeset } from "./unityChangeset.ts";
 
-const UNITY_ARCHIVE_URL = 'https://unity3d.com/get-unity/download/archive';
+const REGEXP_HUB_LINKS = /unityhub:\/\/\d{4}\.\d+\.\d+(a|b|f)\d+\/\w{12}/g;
+const UNITY_ARCHIVE_URL = "https://unity3d.com/get-unity/download/archive";
+const UNITY_ALPHA_URL = "https://unity3d.com/unity/alpha/";
+const UNITY_BETA_URL = "https://unity3d.com/unity/beta/";
+const UNITY_RSS_URL = "https://unity3d.com/unity/beta/latest.xml";
 
-const getDocumentFromUrl = async (archiveUrl: RequestInfo) => {
-  const response = await fetch(archiveUrl);
-  const html = await response.text();
-
-  return new JSDOM(html).window.document;
-};
-
-export const getUnityChangeset = async (version: string): Promise<UnityChangeset> => {
+/*
+* Get an Unity changeset from specific Unity version.
+* @param version The Unity version.
+* @returns An Unity changeset.
+*/
+export async function getUnityChangeset(
+  version: string,
+): Promise<UnityChangeset> {
   const match = version.match(/^\d{4}\.\d+\.\d+(a|b|f)\d+$/);
-  switch (match?.[1] as string) {
-    case 'f':
-      return await getArchivedChangeset(version);
-    case 'a':
-      return await getBetaChangeset(version, 'alpha');
-    case 'b':
-      return await getBetaChangeset(version, 'beta');
+  const lifecycle = match?.[1] as string;
+  switch (lifecycle) {
+    case "f":
+      return (await getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL))
+        .filter((c) => c.version === version)[0];
+    case "a":
+      return (await getUnityChangesetsFromUrl(UNITY_ALPHA_URL + version))
+        .filter((c) => c.version === version)[0];
+    case "b":
+      return (await getUnityChangesetsFromUrl(UNITY_BETA_URL + version))
+        .filter((c) => c.version === version)[0];
     default:
-      throw Error(`The given life-cycle '${match?.[1]}' (in ${version}) was not supported`)
+      throw Error(
+        `The given life-cycle '${lifecycle}' (in ${version}) was not supported`,
+      );
   }
-};
+}
 
-export const getArchivedChangeset = async (version: string): Promise<UnityChangeset> => {
-  const versions = await scrapeArchivedChangesets();
-  return versions.filter(c => c.version === version)[0];
-};
+/*
+* Scrape the archived Unity changesets from Unity archives.
+* @returns The Unity changesets.
+*/
+export function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
+  return getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL);
+}
 
-export const getBetaChangeset = async (version: string, channel: string): Promise<UnityChangeset> => {
-  const document = await getDocumentFromUrl(`https://unity3d.com/unity/${channel}/${version}`);
+/*
+* Scrape the alpha/beta Unity changesets from Unity RSS feed.
+* @returns The Unity changesets (alpha/beta).
+*/
+export function scrapeBetaChangesets(): Promise<UnityChangeset[]> {
+  return getUnityChangesetsFromUrl(UNITY_RSS_URL);
+}
 
-  return Array.from(document.querySelectorAll('a[href]'))
-    .map(a => a.getAttribute('href') as string)
-    .filter(href => UnityChangeset.isValid(href))
-    .map(href => UnityChangeset.createFromHref(href))[0];
-};
+async function getUnityChangesetsFromUrl(
+  url: string,
+): Promise<UnityChangeset[]> {
+  const response = await fetch(url);
+  const raw = await response.text();
+  const match = raw.match(REGEXP_HUB_LINKS);
 
-export const scrapeArchivedChangesets = async (): Promise<UnityChangeset[]> => {
-  const document = await getDocumentFromUrl(UNITY_ARCHIVE_URL);
+  if (!match) {
+    throw new Error(`No changesets found at '${url}'`);
+  }
 
-  return Array.from(document.querySelectorAll('a[href]'))
-    .map(a => a.getAttribute('href') as string)
-    .filter(href => UnityChangeset.isValid(href))
-    .map(href => UnityChangeset.createFromHref(href));
-};
-
-export const scrapeBetaChangesets = async (): Promise<UnityChangeset[]> => {
-  const response = await fetch("https://unity3d.com/unity/beta/latest.xml");
-  const raw = await response?.text();
-  const results = new Set<UnityChangeset>();
-
-  raw
-    ?.match(/unityhub:\/\/([^\/]*)\/([0-9a-f]*)/g)
-    ?.map(m => m.match(/unityhub:\/\/([^\/]*)\/([0-9a-f]*)/))
-    ?.forEach(m => {
-      if (m == null) return;
-      results.add(new UnityChangeset(m[1], m[2]));
-    });
-
-  return Array.from(results);
-};
-
-export const toNumber = (version: string, max: boolean): number => {
-  return UnityChangeset.toNumber(version, max);
-};
+  return match.map((m) => UnityChangeset.createFromHref(m));
+}

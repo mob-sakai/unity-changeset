@@ -1,14 +1,16 @@
-const REGEXP_HUB_LINK = /^unityhub:\/\/(\d{4}\.\d+\.\d+(a|b|f)\d+)\/(\w{12})$/
+const REGEXP_HUB_LINK = /^unityhub:\/\/(\d{4}\.\d+\.\d+(a|b|f)\d+)\/(\w{12})$/;
 const REGEXP_UNITY = /^(\d+)\.(\d+)\.(\d+)([a-zA-Z]+)(\d+)/;
 const REGEXP_UNITY_NUM = /^(\d+)\.?(\d+)?\.?(\d+)?([a-zA-Z]+)?(\d+)?/;
 
+/*
+Unity Changeset
+*/
 export class UnityChangeset {
-  version: string = '';
-  changeset: string = '';
-  versionNumber: number = 0;
-  minor: string = '';
-  lifecycle: string = '';
-
+  version = "";
+  changeset = "";
+  versionNumber = 0;
+  minor = "";
+  lifecycle = "";
 
   constructor(version: string, changeset: string) {
     Object.assign(this, { version, changeset });
@@ -23,9 +25,12 @@ export class UnityChangeset {
 
   toString = (): string => {
     return `${this.version}\t${this.changeset}`;
-  }
+  };
 
-  static isValid = (href: string): Boolean => {
+  /*
+  * Convert a Unity version to a number.
+  */
+  static isValid = (href: string): boolean => {
     return REGEXP_HUB_LINK.test(href);
   };
 
@@ -38,10 +43,10 @@ export class UnityChangeset {
     const match = version.toString().match(REGEXP_UNITY_NUM);
     if (match === null) return 0;
 
-    return parseInt(match[1] || (max ? '9999' : '0')) * 100 * 100 * 100 * 100
-      + parseInt(match[2] || (max ? '99' : '0')) * 100 * 100 * 100
-      + parseInt(match[3] || (max ? '99' : '0')) * 100 * 100
-      + ((match[4] || (max ? 'z' : 'a')).toUpperCase().charCodeAt(0) - 65) * 100
-      + parseInt(match[5] || (max ? '99' : '0'));
+    return parseInt(match[1] || (max ? "9999" : "0")) * 100 * 100 * 100 * 100 +
+      parseInt(match[2] || (max ? "99" : "0")) * 100 * 100 * 100 +
+      parseInt(match[3] || (max ? "99" : "0")) * 100 * 100 +
+      ((match[4] || (max ? "z" : "a")).toUpperCase().charCodeAt(0) - 65) * 100 +
+      parseInt(match[5] || (max ? "99" : "0"));
   };
 }
