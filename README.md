@@ -65,7 +65,10 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = re
 ## Usage as a deno module
 
 ```js
-const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = from 'https://deno.land/x/unity_changeset';
+const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = from 'https://deno.land/x/unity_changeset/src/index.ts';
+
+// or, specific version
+const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = from 'https://deno.land/x/unity_changeset@2.0.0/src/index.ts';
 ```
 
 <br><br><br><br>
@@ -85,7 +88,7 @@ npx unity-changeset ...
 or
 
 ```
-deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/cli.ts
+deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cli.ts
 ```
 
 
