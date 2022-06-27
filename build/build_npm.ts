@@ -57,4 +57,4 @@ await build({
 // post build steps
 Deno.copyFileSync("LICENSE", "npm/LICENSE");
 Deno.copyFileSync("README.md", "npm/README.md");
-Deno.copyFileSync(".releaserc.json", "npm/.releaserc.json");
+Deno.copyFileSync("build/.releaserc.json", "npm/.releaserc.json");
