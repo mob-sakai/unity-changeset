@@ -3,6 +3,7 @@ unity-changeset
 
 Get/List Unity editor changeset
 
+[![](https://shields.io/badge/deno.land-unity__changeset-green?logo=deno&style=flat)](https://deno.land/x/unity_changeset)
 [![npm](https://img.shields.io/npm/v/unity-changeset)](https://www.npmjs.com/package/unity-changeset)
 ![license](https://img.shields.io/npm/l/unity-changeset)
 ![downloads](https://img.shields.io/npm/dy/unity-changeset)
@@ -13,10 +14,21 @@ Get/List Unity editor changeset
 
 ## Usage as a node module
 
+Requirement: NodeJs 14 or later
+
 ### Install
 
 ```sh
 npm install unity-changeset
+```
+
+### Import
+
+```js
+// javascript
+const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = require('unity-changeset');
+// or, typescript
+const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = from 'unity-changeset';
 ```
 
 ### Example
@@ -49,6 +61,13 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = re
 })();
 ```
 
+
+## Usage as a deno module
+
+```js
+const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = from 'https://deno.land/x/unity_changeset';
+```
+
 <br><br><br><br>
 
 ## Usage as a command-line utility
@@ -56,8 +75,19 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = re
 ### Install
 
 ```sh
+# Requirement: NodeJs 14 or later
 npm install -g unity-changeset
+
+# Use without installation
+npx unity-changeset ...
 ```
+
+or
+
+```
+deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/cli.ts
+```
+
 
 ### Display help
 
