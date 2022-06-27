@@ -1,0 +1,43 @@
+{
+  "module": "./esm/index.js",
+  "main": "./script/index.js",
+  "types": "./types/index.d.ts",
+  "bin": {
+    "unity-changeset": "./esm/cli.js"
+  },
+  "name": "unity-changeset",
+  "version": "1.8.0-beta.1",
+  "description": "Get/List Unity changeset",
+  "author": "mob-sakai <sakai861104@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mob-sakai/unity-changeset.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mob-sakai/unity-changeset/issues"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "devDependencies": {
+    "@types/node": "16.11.37",
+    "chalk": "4.1.2",
+    "@types/node-fetch": "^2.5.7"
+  },
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./script/index.js",
+      "types": "./types/index.d.ts"
+    }
+  },
+  "scripts": {
+    "test": "node test_runner.js"
+  },
+  "dependencies": {
+    "cac": "6.7.12",
+    "@deno/shim-deno": "~0.6.0",
+    "node-fetch": "~2.6.7"
+  }
+}
