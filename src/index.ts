@@ -1,8 +1,4 @@
 import { UnityChangeset } from "./unityChangeset.ts";
-import {
-  distinctBy,
-  sortBy,
-} from "https://deno.land/std@0.180.0/collections/mod.ts";
 
 const REGEXP_HUB_LINKS = /unityhub:\/\/\d{4}\.\d+\.\d+(a|b|f)\d+\/\w{12}/g;
 const UNITY_ARCHIVE_URL = "https://unity3d.com/get-unity/download/archive";
@@ -46,10 +42,13 @@ export async function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
   const changesets = (await getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL))
     .concat(await getUnityChangesetsFromUrl(UNITY_RSS_URL));
 
-  return sortBy(
-    distinctBy(changesets, (c) => c.versionNumber),
-    (c) => -c.versionNumber,
-  );
+  const unique = new Set();
+  return changesets.filter((c) => {
+    const duplicated = unique.has(c.versionNumber);
+    unique.add(c.versionNumber);
+    return !duplicated;
+  })
+    .sort((a, b) => b.versionNumber - a.versionNumber);
 }
 
 /*
