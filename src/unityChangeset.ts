@@ -28,8 +28,8 @@ export class UnityChangeset {
   };
 
   /*
-  * Convert a Unity version to a number.
-  */
+   * Convert a Unity version to a number.
+   */
   static isValid = (href: string): boolean => {
     return REGEXP_HUB_LINK.test(href);
   };
