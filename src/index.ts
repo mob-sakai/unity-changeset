@@ -1,10 +1,12 @@
 import { UnityChangeset } from "./unityChangeset.ts";
+import { distinctBy, sortBy } from "https://deno.land/std@0.180.0/collections/mod.ts";
 
 const REGEXP_HUB_LINKS = /unityhub:\/\/\d{4}\.\d+\.\d+(a|b|f)\d+\/\w{12}/g;
 const UNITY_ARCHIVE_URL = "https://unity3d.com/get-unity/download/archive";
 const UNITY_ALPHA_URL = "https://unity3d.com/unity/alpha/";
 const UNITY_BETA_URL = "https://unity3d.com/unity/beta/";
-const UNITY_RSS_URL = "https://unity3d.com/unity/beta/latest.xml";
+const UNITY_RSS_URL = "https://unity.com/releases/editor/releases.xml";
+const UNITY_BETA_RSS_URL = "https://unity3d.com/unity/beta/latest.xml";
 
 /*
 * Get an Unity changeset from specific Unity version.
@@ -18,7 +20,7 @@ export async function getUnityChangeset(
   const lifecycle = match?.[1] as string;
   switch (lifecycle) {
     case "f":
-      return (await getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL))
+      return (await scrapeArchivedChangesets())
         .filter((c) => c.version === version)[0];
     case "a":
       return (await getUnityChangesetsFromUrl(UNITY_ALPHA_URL + version))
@@ -37,8 +39,14 @@ export async function getUnityChangeset(
 * Scrape the archived Unity changesets from Unity archives.
 * @returns The Unity changesets.
 */
-export function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
-  return getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL);
+export async function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
+  const changesets = (await getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL))
+    .concat(await getUnityChangesetsFromUrl(UNITY_RSS_URL));
+
+  return sortBy(
+    distinctBy(changesets, (c) => c.versionNumber),
+    (c) => -c.versionNumber,
+  );
 }
 
 /*
@@ -46,7 +54,7 @@ export function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
 * @returns The Unity changesets (alpha/beta).
 */
 export function scrapeBetaChangesets(): Promise<UnityChangeset[]> {
-  return getUnityChangesetsFromUrl(UNITY_RSS_URL);
+  return getUnityChangesetsFromUrl(UNITY_BETA_RSS_URL);
 }
 
 async function getUnityChangesetsFromUrl(
