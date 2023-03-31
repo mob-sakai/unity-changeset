@@ -40,8 +40,9 @@ new Command()
       .example("unity-changeset list --lts --latest-patch", "List changesets of the latest patch versions (LTS only).")
       // Search options.
       .group("Search options")
-      .option("--all", "Search all changesets (alpha/beta included)", { conflicts: ["beta"] })
-      .option("--beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["all"] })
+      .option("--archive", "Search archived changesets (default, alpha/beta not included)")
+      .option("--all", "Search all changesets (alpha/beta included)", { conflicts: ["archive", "pre-release"] })
+      .option("--pre-release, --beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["archive", "all"] })
       // Filter options.
       .group("Filter options")
       .option("--min <version>", "Minimum version (included)")
@@ -49,21 +50,22 @@ new Command()
       .option("--grep <regex>", "Regular expression (e.g. '20(18|19).4.*')")
       .option("--latest-lifecycle", "Only the latest lifecycle (default)")
       .option("--all-lifecycles", "All lifecycles", { conflicts: ["latest-lifecycle"] })
+      .option("--lts", "Only the LTS versions", { conflicts: ["pre-release"] })
       // Group options.
       .group("Group options")
       .option("--latest-patch", "The latest patch versions only")
       .option("--oldest-patch", "The oldest patch versions in lateat lifecycle only", { conflicts: ["latest-patch"] })
       // Output options.
       .group("Output options")
-      .option("--versions", "Outputs only the version (no changesets)")
-      .option("--minor-versions", "Outputs only the minor version (no changesets)", { conflicts: ["version-only"] })
+      .option("--version-only, --versions", "Outputs only the version (no changesets)")
+      .option("--minor-version-only, --minor-versions", "Outputs only the minor version (no changesets)", { conflicts: ["version-only"] })
       .option("--json", "Output in json format")
       .option("--pretty-json", "Output in pretty json format")
       .action((options) => {
         // Search mode.
         const searchMode = options.all
           ? SearchMode.All
-          : options.beta
+          : options.preRelease
             ? SearchMode.PreRelease
             : SearchMode.Archived;
 
@@ -82,13 +84,13 @@ new Command()
           allLifecycles: (options.allLifecycles && !options.latestLifecycle)
             ? true
             : false,
-          lts: false,
+          lts: options.lts || false,
         };
 
         // Output mode.
-        const outputMode = options.versions
+        const outputMode = options.versionOnly
           ? OutputMode.VersionOnly
-          : options.minorVersions
+          : options.minorVersionOnly
             ? OutputMode.MinorVersionOnly
             : OutputMode.Changeset;
         
