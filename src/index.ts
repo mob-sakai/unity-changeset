@@ -6,6 +6,7 @@ const UNITY_ALPHA_URL = "https://unity3d.com/unity/alpha/";
 const UNITY_BETA_URL = "https://unity3d.com/unity/beta/";
 const UNITY_RSS_URL = "https://unity.com/releases/editor/releases.xml";
 const UNITY_BETA_RSS_URL = "https://unity3d.com/unity/beta/latest.xml";
+const UNITY_LTS_RSS_URL = "https://unity.com/releases/editor/lts-releases.xml";
 
 /*
  * Get an Unity changeset from specific Unity version.
@@ -38,17 +39,30 @@ export async function getUnityChangeset(
  * Scrape the archived Unity changesets from Unity archives.
  * @returns The Unity changesets.
  */
-export async function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
-  const changesets = (await getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL))
-    .concat(await getUnityChangesetsFromUrl(UNITY_RSS_URL));
+export function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
+  return Promise.all([
+    getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL),
+    getUnityChangesetsFromUrl(UNITY_RSS_URL),
+    getUnityChangesetsFromUrl(UNITY_LTS_RSS_URL),
+  ])
+    .then((results) => {
+      const changesets = results[0].concat(results[1]);
+      const ltsVersons = groupChangesets(results[2], GroupMode.LatestPatch)
+        .map((c) => c.minor);
+      const unique = new Set();
 
-  const unique = new Set();
-  return changesets.filter((c) => {
-    const duplicated = unique.has(c.versionNumber);
-    unique.add(c.versionNumber);
-    return !duplicated;
-  })
-    .sort((a, b) => b.versionNumber - a.versionNumber);
+      return changesets
+        .filter((c) => {
+          const duplicated = unique.has(c.versionNumber);
+          unique.add(c.versionNumber);
+          return !duplicated;
+        })
+        .map((c) => {
+          c.lts = ltsVersons.includes(c.minor);
+          return c;
+        })
+        .sort((a, b) => b.versionNumber - a.versionNumber);
+    });
 }
 
 /*

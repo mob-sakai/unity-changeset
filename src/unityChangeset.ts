@@ -11,9 +11,10 @@ export class UnityChangeset {
   versionNumber = 0;
   minor = "";
   lifecycle = "";
+  lts = false;
 
-  constructor(version: string, changeset: string) {
-    Object.assign(this, { version, changeset });
+  constructor(version: string, changeset: string, lts: boolean = false) {
+    Object.assign(this, { version, changeset, lts });
 
     const match = this.version.match(REGEXP_UNITY);
     if (match) {
