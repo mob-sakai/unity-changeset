@@ -1,140 +1,109 @@
-// deno-lint-ignore-file no-explicit-any
-import { cac } from "https://unpkg.com/cac@6.7.12/mod.ts";
+// deno-fmt-ignore-file
+import { Command } from "https://deno.land/x/cliffy@v0.25.7/command/command.ts";
 import {
   getUnityChangeset,
-  scrapeArchivedChangesets,
-  scrapeBetaChangesets,
+  listChangesets,
+  SearchMode,
+  FilterOptions,
+  GroupMode,
+  OutputMode,
+  FormatMode,
 } from "./index.ts";
-import { UnityChangeset } from "./unityChangeset.ts";
 
-interface CliOptions {
-  min: string;
-  max: string;
-  grep: string;
-  json: boolean;
-  prettyJson: boolean;
-  all: boolean;
-  beta: boolean;
-  versions: boolean;
-  minorVersions: boolean;
-  latestPatch: boolean;
-  oldestPatch: boolean;
-  latestLifecycle: boolean;
-}
-
-const groupBy = <T, K extends keyof any>(arr: T[], key: (i: T) => K) =>
-  arr.reduce((groups, item) => {
-    (groups[key(item)] ||= []).push(item);
-    return groups;
-  }, {} as Record<K, T[]>);
-
-const cli = cac("unity-changeset");
-cli.command("<version>", "Get a changeset for specific version")
-  .action((version) =>
-    (async () => {
-      try {
-        const changeset = await getUnityChangeset(version);
-        console.log(changeset.changeset);
-      } catch {
+new Command()
+  /*
+   * Main command
+   */
+  .name("unity-changeset")
+  .description("Find Unity changesets.")
+  .example("unity-changeset 2018.4.36f1", "Get changeset of Unity 2018.4.36f1 ('6cd387d23174' will be output).")
+  .arguments("<version>")
+  .action((_, version) => {
+    getUnityChangeset(version)
+      .then((c) => console.log(c.changeset))
+      .catch(() => {
         console.error("The given version was not found.");
         Deno.exit(1);
-      }
-    })()
-  );
+      });
+  })
+  /*
+   * Sub command: list.
+   */
+  .command(
+    "list",
+    new Command()
+      .description("List Unity changesets.")
+      .example("unity-changeset list", "List changesets of the archived versions.")
+      .example("unity-changeset list --all --json", "List changesets of all versions in json format.")
+      .example("unity-changeset list --version-only --min 2018.3 --max 2019.4", "List all versions from 2018.3 to 2019.4.")
+      .example("unity-changeset list --version-only --grep '(2018.4|2019.4)'", "List all versions in 2018.4 and 2019.4.")
+      .example("unity-changeset list --lts --latest-patch", "List changesets of the latest patch versions (LTS only).")
+      // Search options.
+      .group("Search options")
+      .option("--all", "Search all changesets (alpha/beta included)", { conflicts: ["beta"] })
+      .option("--beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["all"] })
+      // Filter options.
+      .group("Filter options")
+      .option("--min <version>", "Minimum version (included)")
+      .option("--max <version>", "Maximum version (included)")
+      .option("--grep <regex>", "Regular expression (e.g. '20(18|19).4.*')")
+      .option("--latest-lifecycle", "Only the latest lifecycle (default)")
+      .option("--all-lifecycles", "All lifecycles", { conflicts: ["latest-lifecycle"] })
+      // Group options.
+      .group("Group options")
+      .option("--latest-patch", "The latest patch versions only")
+      .option("--oldest-patch", "The oldest patch versions in lateat lifecycle only", { conflicts: ["latest-patch"] })
+      // Output options.
+      .group("Output options")
+      .option("--versions", "Outputs only the version (no changesets)")
+      .option("--minor-versions", "Outputs only the minor version (no changesets)", { conflicts: ["version-only"] })
+      .option("--json", "Output in json format")
+      .option("--pretty-json", "Output in pretty json format")
+      .action((options) => {
+        // Search mode.
+        const searchMode = options.all
+          ? SearchMode.All
+          : options.beta
+            ? SearchMode.PreRelease
+            : SearchMode.Archived;
 
-cli.command("list", "List changesets")
-  .option("--min <version>", "Minimum version (included)")
-  .option("--max <version>", "Maximum version (included)")
-  .option("--grep <version>", "Grep version")
-  .option("--json", "Output in json format")
-  .option("--pretty-json", "Output in pretty json format")
-  .option("--all", "List all changesets (alpha/beta included)")
-  .option("--beta", "List alpha/beta changesets")
-  .option("--versions", "Output only the available Unity versions")
-  .option("--minor-versions", "Output only the available Unity minor versions")
-  .option("--latest-patch", "Output only the latest Unity patch versions")
-  .option("--oldest-patch", "Output only the oldest Unity patch versions")
-  .option(
-    "--latest-lifecycle",
-    "Output only the latest lifecycle Unity patch versions",
+        // Group mode.
+        const groupMode = options.latestPatch
+          ? GroupMode.LatestPatch
+          : options.oldestPatch
+            ? GroupMode.OldestPatch
+            : GroupMode.All;
+
+        // Filter options.
+        const filterOptions : FilterOptions = {
+          min: options.min || "",
+          max: options.max || "",
+          grep: options.grep || "",
+          allLifecycles: (options.allLifecycles && !options.latestLifecycle)
+            ? true
+            : false,
+          lts: false,
+        };
+
+        // Output mode.
+        const outputMode = options.versions
+          ? OutputMode.VersionOnly
+          : options.minorVersions
+            ? OutputMode.MinorVersionOnly
+            : OutputMode.Changeset;
+        
+        // Format mode.
+        const formatMode = options.json
+          ? FormatMode.Json
+          : options.prettyJson
+            ? FormatMode.PrettyJson
+            : FormatMode.None;
+
+        listChangesets(searchMode, filterOptions, groupMode, outputMode, formatMode)
+          .then((result) => console.log(result));
+      }),
   )
-  .action((options: CliOptions) =>
-    (async () => {
-      let results = options.all
-        ? (await scrapeArchivedChangesets()).concat(
-          await scrapeBetaChangesets(),
-        )
-        : options.beta
-        ? await scrapeBetaChangesets()
-        : await scrapeArchivedChangesets();
-
-      // Filter by min/max.
-      const min = options.min
-        ? UnityChangeset.toNumber(options.min, false)
-        : Number.MIN_VALUE;
-      const max = options.max
-        ? UnityChangeset.toNumber(options.max, true)
-        : Number.MAX_VALUE;
-      results = results
-        .filter((r) => options.grep ? r.version.includes(options.grep) : true)
-        .filter((r) => min <= r.versionNumber && r.versionNumber <= max);
-
-      // Group by minor version
-      if (options.minorVersions) {
-        results.forEach((r) => r.version = r.minor);
-        results = Object.values(groupBy(results, (r) => r.version)).map((g) =>
-          g[0]
-        );
-      } // Group by minor version and get latest lifecycle patch
-      else if (options.latestLifecycle) {
-        results = Object.values(groupBy(results, (r) => r.minor))
-          .map((g) => g.filter((v) => v.lifecycle == g[0].lifecycle)[0]);
-      } // Group by minor version and get latest patch
-      else if (options.latestPatch) {
-        results = Object.values(groupBy(results, (r) => r.minor)).map((g) =>
-          g[0]
-        );
-      } // Group by minor version and get oldest patch
-      else if (options.oldestPatch) {
-        results = Object.values(groupBy(results, (r) => r.minor)).map((g) =>
-          g[g.length - 1]
-        );
-      }
-
-      // If the result is empty, do not output anything
-      if (results.length == 0) {
-        return;
-      }
-
-      const res = options.versions || options.minorVersions
-        ? results.map((r) => r.version)
-        : results;
-
-      // Output in json format or plain
-      if (options.prettyJson) {
-        console.log(JSON.stringify(res, null, "  "));
-      } else if (options.json) {
-        console.log(JSON.stringify(res));
-      } else {
-        console.log(res.map((r) => r.toString()).join("\n"));
-      }
-    })()
-  );
-
-cli
-  .usage("unity-changeset <command> [options]")
-  .example("unity-changeset 2020.1.15f1")
-  .example("unity-changeset 2021.1.0a7")
-  .example("unity-changeset list")
-  .example("unity-changeset list --beta")
-  .example("unity-changeset list --versions")
-  .example("unity-changeset list --versions --all")
-  .example("unity-changeset list --versions --all --latest-patch")
-  .help();
-
-if (0 == Deno.args.length) {
-  cli.outputHelp();
-  Deno.exit(1);
-}
-
-cli.parse();
+  /*
+   * Run with arguments.
+   */
+  .parse(Deno.args);

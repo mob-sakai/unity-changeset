@@ -1,5 +1,6 @@
 {
   "tasks": {
+    "run": "deno run -A src/cli.ts",
     "build": "deno run -A build/build_npm.ts",
     "test": "deno test -A src/",
     "lint": "deno lint src/ && deno fmt src/"

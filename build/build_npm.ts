@@ -1,8 +1,9 @@
-import { build, emptyDir } from "https://deno.land/x/dnt/mod.ts";
+import { build, emptyDir } from "https://deno.land/x/dnt@0.26.0/mod.ts";
 
 await emptyDir("./npm");
 
 await build({
+  typeCheck: false,
   entryPoints: [
     "./src/index.ts",
     {
@@ -26,10 +27,6 @@ await build({
     }],
   },
   mappings: {
-    "https://unpkg.com/cac@6.7.12/mod.ts": {
-      name: "cac",
-      version: "6.7.12",
-    },
   },
   package: {
     // package.json properties
