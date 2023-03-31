@@ -1,0 +1,22 @@
+name: test
+
+on:
+  pull_request:
+    paths:
+      - "*.ts"
+  push:
+    tags-ignore:
+      - "**"
+    paths:
+      - "*.ts"
+
+jobs:
+  test:
+    if: "! contains(github.event.head_commit.message, '[skip ci]') && ! contains(github.event.head_commit.message, '[ci skip]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: asdf-vm/actions/install@v2
+
+      - run: deno task build
