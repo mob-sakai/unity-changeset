@@ -85,16 +85,211 @@ export function scrapeBetaChangesets(): Promise<UnityChangeset[]> {
     );
 }
 
-async function getUnityChangesetsFromUrl(
+function getUnityChangesetsFromUrl(
   url: string,
 ): Promise<UnityChangeset[]> {
-  const response = await fetch(url);
-  const raw = await response.text();
-  const match = raw.match(REGEXP_HUB_LINKS);
+  return fetch(url)
+    .then((response) => response.text())
+    .then((raw) => {
+      const match = raw.match(REGEXP_HUB_LINKS);
 
-  if (!match) {
-    throw new Error(`No changesets found at '${url}'`);
-  }
+      if (!match) {
+        throw new Error(`No changesets found at '${url}'`);
+      }
 
-  return match.map((m) => UnityChangeset.createFromHref(m));
+      return match.map((m) => UnityChangeset.createFromHref(m));
+    });
 }
+
+/*
+ * Search mode.
+ *
+ * All: All the changesets.
+ * Archived: Only the archived changesets.
+ * PreRelease: Only the alpha/beta changesets.
+ */
+export enum SearchMode {
+  All = 0,
+  Archived = 2,
+  PreRelease = 3,
+}
+
+/*
+ * Group mode.
+ *
+ * All: All the changesets.
+ * OldestPatch: Only the oldest patch changesets.
+ * LatestPatch: Only the latest patch changesets.
+ * LatestLifecycle: Only the latest lifecycle changesets.
+ */
+export enum GroupMode {
+  All = "all",
+  OldestPatch = "oldest-patch",
+  LatestPatch = "latest-patch",
+  LatestLifecycle = "latest-lifecycle",
+}
+
+/*
+ * Filter options.
+ *
+ * min: The minimum version. eg. 2018.4
+ * max: The maximum version. eg. 2019.4
+ * grep: The grep pattern. eg. 20(18|19)
+ * allLifecycles: Include all the lifecycles.
+ * lts: Include only the LTS versions.
+ */
+export interface FilterOptions {
+  min: string;
+  max: string;
+  grep: string;
+  allLifecycles: boolean;
+  lts: boolean;
+}
+
+/*
+ * Output mode.
+ *
+ * Changeset: The changeset.
+ * VersionOnly: Only the version.
+ * MinorVersionOnly: Only the minor version.
+ */
+export enum OutputMode {
+  Changeset = "changeset",
+  VersionOnly = "version",
+  MinorVersionOnly = "minor-version",
+}
+
+/*
+ * Format mode.
+ *
+ * None: No format.
+ * Json: JSON format.
+ * PrettyJson: Pretty JSON format.
+ */
+export enum FormatMode {
+  None = "none",
+  Json = "json",
+  PrettyJson = "pretty-json",
+}
+
+export function listChangesets(
+  searchMode: SearchMode,
+  filterOptions: FilterOptions,
+  groupMode: GroupMode,
+  outputMode: OutputMode,
+  formatMode: FormatMode,
+): Promise<string> {
+  return searchChangesets(searchMode)
+    .then((results) => filterChangesets(results, filterOptions))
+    .then((results) => groupChangesets(results, groupMode))
+    .then((results) => {
+      switch (outputMode) {
+        case OutputMode.Changeset:
+          return results;
+        case OutputMode.VersionOnly:
+          return results.map((c) => c.version);
+        case OutputMode.MinorVersionOnly:
+          return results.map((c) => c.minor);
+        default:
+          throw Error(
+            `The given output mode '${outputMode}' was not supported`,
+          );
+      }
+    })
+    .then((results) => {
+      switch (formatMode) {
+        case FormatMode.None:
+          return results.join("\n");
+        case FormatMode.Json:
+          return JSON.stringify(results);
+        case FormatMode.PrettyJson:
+          return JSON.stringify(results, null, 2);
+        default:
+          throw Error(
+            `The given format mode '${formatMode}' was not supported`,
+          );
+      }
+    });
+}
+
+export function searchChangesets(
+  searchMode: SearchMode,
+): Promise<UnityChangeset[]> {
+  switch (searchMode) {
+    case SearchMode.All:
+      return Promise.all([
+        scrapeArchivedChangesets(),
+        scrapeBetaChangesets(),
+      ])
+        .then((r) => r.flat());
+    case SearchMode.Archived:
+      return scrapeArchivedChangesets();
+    case SearchMode.PreRelease:
+      return scrapeBetaChangesets();
+    default:
+      throw Error(`The given search mode '${searchMode}' was not supported`);
+  }
+}
+
+export function filterChangesets(
+  changesets: UnityChangeset[],
+  options: FilterOptions,
+): UnityChangeset[] {
+  if (!changesets || changesets.length == 0) return [];
+
+  // Min version number
+  const min = options.min
+    ? UnityChangeset.toNumber(options.min, false)
+    : Number.MIN_VALUE;
+  // Max version number
+  const max = options.max
+    ? UnityChangeset.toNumber(options.max, true)
+    : Number.MAX_VALUE;
+  // Grep pattern
+  const regex = options.grep ? new RegExp(options.grep, "i") : null;
+  // Lifecycle filter
+  const lc = options.allLifecycles
+    ? null
+    : Object.values(groupBy(changesets, (r) => r.minor))
+      .map((g) => g[0]);
+
+  return changesets
+    .filter((c) =>
+      min <= c.versionNumber &&
+      c.versionNumber <= max &&
+      (!options.lts || c.lts) &&
+      (!regex || regex.test(c.version)) &&
+      (!lc || lc.some((l) => l.minor == c.minor && l.lifecycle == c.lifecycle))
+    );
+}
+
+export function groupChangesets(
+  changesets: UnityChangeset[],
+  groupMode: GroupMode,
+): UnityChangeset[] {
+  if (!changesets || changesets.length == 0) return [];
+
+  switch (groupMode) {
+    case GroupMode.All:
+      return changesets;
+    case GroupMode.LatestLifecycle:
+      return Object.values(groupBy(changesets, (r) => r.minor))
+        .map((g) => g.filter((v) => v.lifecycle == g[0].lifecycle))
+        .flat();
+    case GroupMode.LatestPatch:
+      return Object.values(groupBy(changesets, (r) => r.minor))
+        .map((g) => g[0]);
+    case GroupMode.OldestPatch:
+      return Object.values(groupBy(changesets, (r) => r.minor))
+        .map((g) => g.filter((v) => v.lifecycle == g[0].lifecycle))
+        .map((g) => g[g.length - 1]);
+    default:
+      throw Error(`The given group mode '${groupMode}' was not supported`);
+  }
+}
+
+const groupBy = <T, K extends string>(arr: T[], key: (i: T) => K) =>
+  arr.reduce((groups, item) => {
+    (groups[key(item)] ||= []).push(item);
+    return groups;
+  }, {} as Record<K, T[]>);
