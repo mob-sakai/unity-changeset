@@ -17,7 +17,9 @@ jobs:
 
       - uses: asdf-vm/actions/install@v2
 
-      - run: deno task build
+      - run: |
+          deno task build
+          asdf global nodejs `node -v | sed 's/v//'`
 
       - uses: cycjimmy/semantic-release-action@v3
         with:
