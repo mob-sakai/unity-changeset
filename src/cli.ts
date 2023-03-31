@@ -1,5 +1,6 @@
 // deno-fmt-ignore-file
 import { Command } from "https://deno.land/x/cliffy@v0.25.7/command/command.ts";
+import { resolve } from "https://deno.land/std@0.181.0/path/mod.ts";
 import {
   getUnityChangeset,
   listChangesets,
@@ -10,11 +11,22 @@ import {
   FormatMode,
 } from "./index.ts";
 
+function getPackageVersion(): string {
+  try {
+    return JSON.parse(Deno.readTextFileSync(
+      resolve(new URL(import.meta.url).pathname, "../../package.json"),
+    )).version;
+  } catch {
+    return "-";
+  }
+}
+
 new Command()
   /*
    * Main command
    */
   .name("unity-changeset")
+  .version(getPackageVersion)
   .description("Find Unity changesets.")
   .example("unity-changeset 2018.4.36f1", "Get changeset of Unity 2018.4.36f1 ('6cd387d23174' will be output).")
   .arguments("<version>")
