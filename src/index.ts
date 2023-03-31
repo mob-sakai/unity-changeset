@@ -1,4 +1,7 @@
-import { UnityChangeset } from "./unityChangeset.ts";
+import { UnityChangeset as UnityChangesetClass } from "./unityChangeset.ts";
+
+export const UnityChangeset = UnityChangesetClass;
+export type UnityChangeset = UnityChangesetClass;
 
 const REGEXP_HUB_LINKS = /unityhub:\/\/\d{4}\.\d+\.\d+(a|b|f)\d+\/\w{12}/g;
 const UNITY_ARCHIVE_URL = "https://unity3d.com/get-unity/download/archive";
