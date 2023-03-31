@@ -30,18 +30,23 @@ export async function getUnityChangeset(
   const lifecycle = match?.[2] as string;
   const releaseUrl = UNITY_RELEASE_URLS[lifecycle];
 
+  let results = [];
   if (lifecycle == "f") {
     const shortVersion = match?.[1] as string;
-    const results = (await getUnityChangesetsFromUrl(releaseUrl + shortVersion))
+    results = (await getUnityChangesetsFromUrl(releaseUrl + shortVersion))
       .filter((c) => c.version === version);
     if (0 < results.length) return results[0];
 
-    return (await scrapeArchivedChangesets())
-      .filter((c) => c.version === version)[0];
+    results = (await scrapeArchivedChangesets())
+      .filter((c) => c.version === version);
+    if (0 < results.length) return results[0];
   } else {
-    return getUnityChangesetsFromUrl(releaseUrl + version)
-      .then((results) => results.filter((c) => c.version === version)[0]);
+    results = (await getUnityChangesetsFromUrl(releaseUrl + version))
+      .filter((c) => c.version === version);
+    if (0 < results.length) return results[0];
   }
+  
+  throw new Error(`No changeset found for '${version}'`);
 }
 
 /*
