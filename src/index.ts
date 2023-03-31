@@ -79,7 +79,10 @@ export function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
  * @returns The Unity changesets (alpha/beta).
  */
 export function scrapeBetaChangesets(): Promise<UnityChangeset[]> {
-  return getUnityChangesetsFromUrl(UNITY_BETA_RSS_URL);
+  return getUnityChangesetsFromUrl(UNITY_BETA_RSS_URL)
+    .then((results) =>
+      results.sort((a, b) => b.versionNumber - a.versionNumber)
+    );
 }
 
 async function getUnityChangesetsFromUrl(
