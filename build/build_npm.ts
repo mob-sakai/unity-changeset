@@ -1,9 +1,10 @@
-import { build, emptyDir } from "https://deno.land/x/dnt@0.26.0/mod.ts";
+import { build, emptyDir } from "https://deno.land/x/dnt@0.33.1/mod.ts";
 
+// delete previous build
 await emptyDir("./npm");
 
+// build
 await build({
-  typeCheck: false,
   entryPoints: [
     "./src/index.ts",
     {
@@ -15,21 +16,10 @@ await build({
   outDir: "./npm",
   shims: {
     deno: true, // for Deno namespace
-    custom: [{
-      package: { // for fetch
-        name: "node-fetch",
-        version: "~2.6.7",
-      },
-      globalNames: [{
-        name: "fetch",
-        exportName: "default",
-      }],
-    }],
+    undici: true, // for fetch
   },
-  mappings: {
-  },
+  // package.json properties
   package: {
-    // package.json properties
     name: "unity-changeset",
     version: "0.0.1",
     description: "Get/List Unity changeset",
