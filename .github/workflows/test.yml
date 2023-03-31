@@ -9,6 +9,7 @@ on:
       - "**"
     paths:
       - "*.ts"
+  workflow_dispatch:
 
 jobs:
   test:
