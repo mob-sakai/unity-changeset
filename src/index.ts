@@ -99,7 +99,8 @@ function getUnityChangesetsFromUrl(
       const match = raw.match(REGEXP_HUB_LINKS);
 
       if (!match) {
-        throw new Error(`No changesets found at '${url}'`);
+        console.error(`No changesets found at '${url}'`);
+        return [];
       }
 
       return match.map((m) => UnityChangeset.createFromHref(m));
