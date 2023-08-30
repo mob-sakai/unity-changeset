@@ -82,7 +82,7 @@ new Command()
             : SearchMode.Archived;
 
         // Group mode.
-        const groupMode = options.latestPatch
+        const groupMode = (options.latestPatch || options.minorVersionOnly)
           ? GroupMode.LatestPatch
           : options.oldestPatch
             ? GroupMode.OldestPatch
