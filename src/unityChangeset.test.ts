@@ -8,13 +8,13 @@ import {
   filterChangesets,
   getUnityChangeset,
   groupChangesets,
-  GroupMode,
-  scrapeArchivedChangesets,
-  scrapeBetaChangesets,
   searchChangesets,
+  GroupMode,
   SearchMode,
   UnityChangeset,
 } from "./index.ts";
+
+const DB_URL = "https://mob-sakai.github.io/unity-changeset/db";
 
 Deno.test("UnityChangeset.toNumber min", () => {
   assertEquals(UnityChangeset.toNumber("2018.3", false), 201803000000);
@@ -34,35 +34,34 @@ Deno.test("UnityChangeset.toNumber max", () => {
 ].forEach((testcase) => {
   Deno.test(`getUnityChangeset (${testcase.version})`, async () => {
     if (testcase.expected) {
-      const changeset = (await getUnityChangeset(testcase.version)).changeset;
+      const changeset = (await getUnityChangeset(DB_URL, testcase.version)).changeset;
       assertEquals(changeset, testcase.expected);
     }
-    else
-    {
-      await assertRejects(() => getUnityChangeset(testcase.version));
+    else {
+      await assertRejects(() => getUnityChangeset(DB_URL, testcase.version));
     }
   })
 });
 
 Deno.test("scrapeArchivedChangesets", async () => {
-  const changesets = await scrapeArchivedChangesets();
+  const changesets = await searchChangesets(DB_URL, SearchMode.Default);
   assertNotEquals(changesets.length, 0);
 });
 
 Deno.test("scrapeBetaChangesets", async () => {
-  const changesets = await scrapeBetaChangesets();
+  const changesets = await searchChangesets(DB_URL, SearchMode.PreRelease);
   console.log(changesets.map((c) => c.version));
   assertNotEquals(changesets.length, 0);
 });
 
 // searchChangesets
 [
-  { searchMode: SearchMode.All        },
-  { searchMode: SearchMode.Archived   },
+  { searchMode: SearchMode.All },
+  { searchMode: SearchMode.Default },
   { searchMode: SearchMode.PreRelease },
 ].forEach((testcase) => {
   Deno.test(`filterChangesets(${JSON.stringify(testcase.searchMode)})`, async () => {
-    const changesets = await searchChangesets(SearchMode.All);
+    const changesets = await searchChangesets(DB_URL, testcase.searchMode);
     assertNotEquals(changesets.length, 0);
   });
 });
@@ -94,11 +93,11 @@ const changesetsForTest = [
 
 // filterChangesets
 [
-  { options: { min: "2018.3", max: "2018.4", grep: "",     allLifecycles: false, lts: false, }, expected: 6,  },
-  { options: { min: "2018.3", max: "",       grep: "2018", allLifecycles: false, lts: false, }, expected: 6,  },
-  { options: { min: "",       max: "",       grep: "",     allLifecycles: false, lts: true   }, expected: 3,  },
-  { options: { min: "2019",   max: "",       grep: "",     allLifecycles: true,  lts: false, }, expected: 13, },
-  { options: { min: "2019",   max: "",       grep: "b",    allLifecycles: true,  lts: false, }, expected: 4,  },
+  { options: { min: "2018.3", max: "2018.4", grep: "", allLifecycles: false, lts: false, }, expected: 6, },
+  { options: { min: "2018.3", max: "", grep: "2018", allLifecycles: false, lts: false, }, expected: 6, },
+  { options: { min: "", max: "", grep: "", allLifecycles: false, lts: true }, expected: 3, },
+  { options: { min: "2019", max: "", grep: "", allLifecycles: true, lts: false, }, expected: 13, },
+  { options: { min: "2019", max: "", grep: "b", allLifecycles: true, lts: false, }, expected: 4, },
 ].forEach((testcase) => {
   Deno.test(`filterChangesets(${JSON.stringify(testcase.options)})`, () => {
     const changesets = filterChangesets(changesetsForTest, testcase.options);
@@ -109,10 +108,10 @@ const changesetsForTest = [
 
 // groupChangesets
 [
-  { groupMode: GroupMode.All,             expected: 22 },
+  { groupMode: GroupMode.All, expected: 22 },
   { groupMode: GroupMode.LatestLifecycle, expected: 14 },
-  { groupMode: GroupMode.LatestPatch,     expected: 5  },
-  { groupMode: GroupMode.OldestPatch,     expected: 5  },
+  { groupMode: GroupMode.LatestPatch, expected: 5 },
+  { groupMode: GroupMode.OldestPatch, expected: 5 },
 ].forEach((testcase) => {
   Deno.test(`groupChangesets(${testcase.groupMode})`, () => {
     const changesets = groupChangesets(changesetsForTest, testcase.groupMode);

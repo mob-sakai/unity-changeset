@@ -6,16 +6,59 @@
     "configurations": [
         {
             "request": "launch",
-            "name": "Launch Program",
-            "type": "pwa-node",
+            "name": "list --versions",
+            "type": "node",
             "program": "${workspaceFolder}/src/cli.ts",
             "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "deno",
+            "env": {},
+            "runtimeExecutable": "/Users/takashi.sakai/.asdf/shims/deno",
             "runtimeArgs": [
                 "run",
                 "--unstable",
-                "--inspect",
+                "--inspect-brk",
                 "--allow-all"
+            ],
+            "args": [
+                "list",
+                "--versions"
+            ],
+            "attachSimplePort": 9229
+        },
+        {
+            "request": "launch",
+            "name": "6000.0.25f1",
+            "type": "node",
+            "program": "${workspaceFolder}/src/cli.ts",
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "runtimeExecutable": "/Users/takashi.sakai/.asdf/shims/deno",
+            "runtimeArgs": [
+                "run",
+                "--unstable",
+                "--inspect-brk",
+                "--allow-all"
+            ],
+            "args": [
+                "6000.0.25f1"
+            ],
+            "attachSimplePort": 9229
+        },
+        {
+            "request": "launch",
+            "name": "--help",
+            "type": "node",
+            "program": "${workspaceFolder}/src/cli.ts",
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "runtimeExecutable": "/Users/takashi.sakai/.asdf/shims/deno",
+            "runtimeArgs": [
+                "run",
+                "--unstable",
+                "--inspect-brk",
+                "--allow-all"
+            ],
+            "args": [
+                "--help"
             ],
             "attachSimplePort": 9229
         }

@@ -30,8 +30,9 @@ new Command()
   .description("Find Unity changesets.")
   .example("unity-changeset 2018.4.36f1", "Get changeset of Unity 2018.4.36f1 ('6cd387d23174' will be output).")
   .arguments("<version>")
-  .action((_, version) => {
-    getUnityChangeset(version)
+  .globalOption("--db", "Database url", { default: "https://mob-sakai.github.io/unity-changeset/db" })
+  .action((options, version) => {
+    getUnityChangeset(options.db as string, version)
       .then((c) => console.log(c.changeset))
       .catch(() => {
         console.error("The given version was not found.");
@@ -45,16 +46,16 @@ new Command()
     "list",
     new Command()
       .description("List Unity changesets.")
-      .example("unity-changeset list", "List changesets of the archived versions.")
+      .globalOption("--db", "Database url", { default: "https://mob-sakai.github.io/unity-changeset/db" })
+      .example("unity-changeset list", "List changesets.")
       .example("unity-changeset list --all --json", "List changesets of all versions in json format.")
       .example("unity-changeset list --version-only --min 2018.3 --max 2019.4", "List all versions from 2018.3 to 2019.4.")
       .example("unity-changeset list --version-only --grep '(2018.4|2019.4)'", "List all versions in 2018.4 and 2019.4.")
       .example("unity-changeset list --lts --latest-patch", "List changesets of the latest patch versions (LTS only).")
       // Search options.
       .group("Search options")
-      .option("--archive", "Search archived changesets (default, alpha/beta not included)")
-      .option("--all", "Search all changesets (alpha/beta included)", { conflicts: ["archive", "pre-release"] })
-      .option("--pre-release, --beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["archive", "all"] })
+      .option("--all", "Search all changesets (alpha/beta included)", { conflicts: ["pre-release"] })
+      .option("--pre-release, --beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["all"] })
       // Filter options.
       .group("Filter options")
       .option("--min <version>", "Minimum version (included)")
@@ -79,7 +80,7 @@ new Command()
           ? SearchMode.All
           : options.preRelease
             ? SearchMode.PreRelease
-            : SearchMode.Archived;
+            : SearchMode.Default;
 
         // Group mode.
         const groupMode = (options.latestPatch || options.minorVersionOnly)
@@ -89,7 +90,7 @@ new Command()
             : GroupMode.All;
 
         // Filter options.
-        const filterOptions : FilterOptions = {
+        const filterOptions: FilterOptions = {
           min: options.min || "",
           max: options.max || "",
           grep: options.grep || "",
@@ -105,7 +106,7 @@ new Command()
           : options.minorVersionOnly
             ? OutputMode.MinorVersionOnly
             : OutputMode.Changeset;
-        
+
         // Format mode.
         const formatMode = options.json
           ? FormatMode.Json
@@ -113,7 +114,7 @@ new Command()
             ? FormatMode.PrettyJson
             : FormatMode.None;
 
-        listChangesets(searchMode, filterOptions, groupMode, outputMode, formatMode)
+        listChangesets(options.db as string, searchMode, filterOptions, groupMode, outputMode, formatMode)
           .then((result) => console.log(result));
       }),
   )

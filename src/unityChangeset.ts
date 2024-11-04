@@ -24,6 +24,17 @@ export class UnityChangeset {
     }
   }
 
+  get preRelease(): boolean {
+    switch (this.lifecycle) {
+      case "a":
+        return true;
+      case "b":
+        return true;
+      default:
+        return false;
+    }
+  }
+
   toString = (): string => {
     return `${this.version}\t${this.changeset}`;
   };
@@ -33,6 +44,11 @@ export class UnityChangeset {
    */
   static isValid = (href: string): boolean => {
     return REGEXP_HUB_LINK.test(href);
+  };
+
+  static createFromDb = (line: string): UnityChangeset => {
+    const splited = line.split("\t");
+    return new UnityChangeset(splited[0], splited[1]);
   };
 
   static createFromHref = (href: string): UnityChangeset => {

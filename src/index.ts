@@ -4,15 +4,12 @@ export const UnityChangeset = UnityChangesetClass;
 export type UnityChangeset = UnityChangesetClass;
 
 const REGEXP_HUB_LINKS = /unityhub:\/\/\d{4}\.\d+\.\d+(a|b|f)\d+\/\w{12}/g;
-const UNITY_ARCHIVE_URL = "https://unity.com/releases/editor/archive";
-const UNITY_RSS_URL = "https://unity.com/releases/editor/releases.xml";
-const UNITY_BETA_RSS_URL = "https://unity.com/releases/editor/beta/latest.xml";
-const UNITY_LTS_RSS_URL = "https://unity.com/releases/editor/lts-releases.xml";
 
 /*
 Unity release URLs for each lifecycle.
 */
 const UNITY_RELEASE_URLS: { [key: string]: string } = {
+  "p": "https://unity.com/releases/editor/whats-new/",
   "f": "https://unity.com/releases/editor/whats-new/",
   "a": "https://unity.com/releases/editor/alpha/",
   "b": "https://unity.com/releases/editor/beta/",
@@ -24,70 +21,50 @@ const UNITY_RELEASE_URLS: { [key: string]: string } = {
  * @returns An Unity changeset.
  */
 export async function getUnityChangeset(
+  db: string,
   version: string,
 ): Promise<UnityChangeset> {
-  const match = version.match(/^(\d{4}\.\d+\.\d+)(a|b|f)\d+$/);
+  let results = await loadDb(db, version);
+  if (0 < results.length) {
+    return results[0];
+  }
+
+  const match = version.match(/^(\d\.\d+\.\d+)(a|b|f|p)\d+$/);
   const lifecycle = match?.[2] as string;
   const releaseUrl = UNITY_RELEASE_URLS[lifecycle];
-
-  let results = [];
   if (lifecycle == "f") {
     const shortVersion = match?.[1] as string;
     results = (await getUnityChangesetsFromUrl(releaseUrl + shortVersion))
       .filter((c) => c.version === version);
-    if (0 < results.length) return results[0];
-
-    results = (await scrapeArchivedChangesets())
-      .filter((c) => c.version === version);
-    if (0 < results.length) return results[0];
   } else {
     results = (await getUnityChangesetsFromUrl(releaseUrl + version))
       .filter((c) => c.version === version);
-    if (0 < results.length) return results[0];
   }
-  
+
+  if (0 < results.length) {
+    return results[0];
+  }
+
   throw new Error(`No changeset found for '${version}'`);
 }
 
-/*
- * Scrape the archived Unity changesets from Unity archives.
- * @returns The Unity changesets.
- */
-export function scrapeArchivedChangesets(): Promise<UnityChangeset[]> {
-  return Promise.all([
-    getUnityChangesetsFromUrl(UNITY_ARCHIVE_URL),
-    getUnityChangesetsFromUrl(UNITY_RSS_URL),
-    getUnityChangesetsFromUrl(UNITY_LTS_RSS_URL),
-  ])
-    .then((results) => {
-      const changesets = results[0].concat(results[1]);
-      const ltsVersons = groupChangesets(results[2], GroupMode.LatestPatch)
-        .map((c) => c.minor);
-      const unique = new Set();
+export async function loadDb(
+  db: string,
+  version?: string,
+): Promise<UnityChangeset[]> {
+  const response = await fetch(db);
+  const text = await response.text();
+  const lines = text.split("\n");
 
-      return changesets
-        .filter((c) => {
-          const duplicated = unique.has(c.versionNumber);
-          unique.add(c.versionNumber);
-          return !duplicated;
-        })
-        .map((c) => {
-          c.lts = ltsVersons.includes(c.minor);
-          return c;
-        })
-        .sort((a, b) => b.versionNumber - a.versionNumber);
-    });
-}
-
-/*
- * Scrape the alpha/beta Unity changesets from Unity RSS feed.
- * @returns The Unity changesets (alpha/beta).
- */
-export function scrapeBetaChangesets(): Promise<UnityChangeset[]> {
-  return getUnityChangesetsFromUrl(UNITY_BETA_RSS_URL)
-    .then((results) =>
-      results.sort((a, b) => b.versionNumber - a.versionNumber)
-    );
+  if (version) {
+    const startsWith = version + "\t";
+    return lines
+      .filter((line) => line.startsWith(startsWith))
+      .map((line) => UnityChangeset.createFromDb(line));
+  } else {
+    return lines
+      .map((line) => UnityChangeset.createFromDb(line));
+  }
 }
 
 function getUnityChangesetsFromUrl(
@@ -110,13 +87,13 @@ function getUnityChangesetsFromUrl(
 /*
  * Search mode.
  *
- * All: All the changesets.
- * Archived: Only the archived changesets.
- * PreRelease: Only the alpha/beta changesets.
+ * All: All changesets.
+ * Default: Only non pre-release changesets.
+ * PreRelease: Only pre-release (alpha/beta) changesets.
  */
 export enum SearchMode {
   All = 0,
-  Archived = 2,
+  Default = 2,
   PreRelease = 3,
 }
 
@@ -179,13 +156,14 @@ export enum FormatMode {
 }
 
 export function listChangesets(
+  db: string,
   searchMode: SearchMode,
   filterOptions: FilterOptions,
   groupMode: GroupMode,
   outputMode: OutputMode,
   formatMode: FormatMode,
 ): Promise<string> {
-  return searchChangesets(searchMode)
+  return searchChangesets(db, searchMode)
     .then((results) => filterChangesets(results, filterOptions))
     .then((results) => groupChangesets(results, groupMode))
     .then((results) => {
@@ -218,20 +196,20 @@ export function listChangesets(
     });
 }
 
-export function searchChangesets(
+export async function searchChangesets(
+  db: string,
   searchMode: SearchMode,
 ): Promise<UnityChangeset[]> {
+  const results = await loadDb(db);
   switch (searchMode) {
     case SearchMode.All:
-      return Promise.all([
-        scrapeArchivedChangesets(),
-        scrapeBetaChangesets(),
-      ])
-        .then((r) => r.flat());
-    case SearchMode.Archived:
-      return scrapeArchivedChangesets();
+      return results;
+    case SearchMode.Default:
+      return results
+        .filter((c) => !c.preRelease);
     case SearchMode.PreRelease:
-      return scrapeBetaChangesets();
+      return results
+        .filter((c) => c.preRelease);
     default:
       throw Error(`The given search mode '${searchMode}' was not supported`);
   }
