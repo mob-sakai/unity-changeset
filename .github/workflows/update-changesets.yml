@@ -1,0 +1,73 @@
+name: update-changesets
+
+env:
+  WORKFLOW_FILE: update-changesets.yml
+  CHANGESETS_FILE: changesets
+  RSS_URLS: |
+    https://unity.com/releases/editor/lts-releases.xml
+    https://unity.com/releases/editor/tech-and-preview-releases.xml
+    https://unity.com/releases/editor/beta-releases.xml
+    https://unity.com/releases/editor/alpha-releases.xml
+  REGEX_UNITY_VERSION: '[0-9]{4,}\.[0-9]{1,}\.[0-9]{1,}(a|b|f|rc|p)[0-9]{1,}'
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  build:
+    if: startsWith(github.event.comment.body, '/update-changesets') && github.event.issue.locked
+    name: 🛠️ Update changesets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: 🚚 Checkout (gh_pages)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: gh_pages
+      - name: 🔍 Check other workflows
+        run: |
+          # Get in-progress or queued workflows.
+          gh auth login --with-token < <(echo ${{ github.token }})
+          RESULT=`gh run list --workflow ${{ env.WORKFLOW_FILE }} --json status --jq '[.[] | select(.status == "in_progress")] | length == 1'`
+
+          # [ERROR] Other workflows are in progress.
+          [ "$RESULT" = "false" ] && echo "::error::Other '${{ env.WORKFLOW_FILE }}' workflows are in progress." && exit 1 || :
+
+      - name: 🛠️ Update changesets file
+        run: |
+          touch "${{ env.CHANGESETS_FILE }}"
+          urls=(`echo "${{ env.RSS_URLS }}"`)
+          for url in "${urls[@]}"; do
+            # Find versions from RSS
+            echo "Processing: $url" | tee -a $GITHUB_STEP_SUMMARY
+            versions=($(curl -s "$url" | grep -oE "${{ env.REGEX_UNITY_VERSION }}" | sort -u))
+
+            for version in "${versions[@]}"; do
+                # Already exists
+                if grep -q "$version" "${{ env.CHANGESETS_FILE }}"; then
+                    continue
+                fi
+
+                # Get changeset for the Unity version
+                changeset_output=$(npx unity-changeset "$version" 2>/dev/null)
+
+                if [ $? -eq 0 ]; then
+                    echo -e "$version\t$changeset_output" | tee -a "${{ env.CHANGESETS_FILE }}" $GITHUB_STEP_SUMMARY
+                else
+                    echo "  Error: $version is not valid"
+                fi
+            done
+          done
+
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ github.token }}
+          amend: true
+          force: true
+          branch: gh_pages

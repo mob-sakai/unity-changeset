@@ -5,19 +5,19 @@ on:
     paths:
       - "*.ts"
   push:
-    tags-ignore:
-      - "**"
+    branches:
+      - "develop"
     paths:
       - "*.ts"
   workflow_dispatch:
 
 jobs:
   test:
-    if: "! contains(github.event.head_commit.message, '[skip ci]') && ! contains(github.event.head_commit.message, '[ci skip]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: asdf-vm/actions/install@v2
+      - uses: asdf-vm/actions/install@v3
 
       - run: deno task build
