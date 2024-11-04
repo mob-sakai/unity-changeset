@@ -2,7 +2,7 @@ name: update-changesets
 
 env:
   WORKFLOW_FILE: update-changesets.yml
-  CHANGESETS_FILE: changesets
+  DB_FILE: db
   RSS_URLS: |
     https://unity.com/releases/editor/lts-releases.xml
     https://unity.com/releases/editor/tech-and-preview-releases.xml
@@ -40,7 +40,7 @@ jobs:
 
       - name: 🛠️ Update changesets file
         run: |
-          touch "${{ env.CHANGESETS_FILE }}"
+          touch "${{ env.DB_FILE }}"
           urls=(`echo "${{ env.RSS_URLS }}"`)
           for url in "${urls[@]}"; do
             # Find versions from RSS
@@ -49,7 +49,7 @@ jobs:
 
             for version in "${versions[@]}"; do
                 # Already exists
-                if grep -q "$version" "${{ env.CHANGESETS_FILE }}"; then
+                if grep -q "$version" "${{ env.DB_FILE }}"; then
                     continue
                 fi
 
@@ -57,7 +57,7 @@ jobs:
                 changeset_output=$(npx unity-changeset "$version" 2>/dev/null)
 
                 if [ $? -eq 0 ]; then
-                    echo -e "$version\t$changeset_output" | tee -a "${{ env.CHANGESETS_FILE }}" $GITHUB_STEP_SUMMARY
+                    echo -e "$version\t$changeset_output" | tee -a "${{ env.DB_FILE }}" $GITHUB_STEP_SUMMARY
                 else
                     echo "  Error: $version is not valid"
                 fi
