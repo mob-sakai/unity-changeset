@@ -14,8 +14,6 @@ import {
   UnityChangeset,
 } from "./index.ts";
 
-const DB_URL = "https://mob-sakai.github.io/unity-changeset/db";
-
 Deno.test("UnityChangeset.toNumber min", () => {
   assertEquals(UnityChangeset.toNumber("2018.3", false), 201803000000);
 });
@@ -34,22 +32,22 @@ Deno.test("UnityChangeset.toNumber max", () => {
 ].forEach((testcase) => {
   Deno.test(`getUnityChangeset (${testcase.version})`, async () => {
     if (testcase.expected) {
-      const changeset = (await getUnityChangeset(DB_URL, testcase.version)).changeset;
+      const changeset = (await getUnityChangeset(testcase.version)).changeset;
       assertEquals(changeset, testcase.expected);
     }
     else {
-      await assertRejects(() => getUnityChangeset(DB_URL, testcase.version));
+      await assertRejects(() => getUnityChangeset(testcase.version));
     }
   })
 });
 
 Deno.test("scrapeArchivedChangesets", async () => {
-  const changesets = await searchChangesets(DB_URL, SearchMode.Default);
+  const changesets = await searchChangesets(SearchMode.Default);
   assertNotEquals(changesets.length, 0);
 });
 
 Deno.test("scrapeBetaChangesets", async () => {
-  const changesets = await searchChangesets(DB_URL, SearchMode.PreRelease);
+  const changesets = await searchChangesets(SearchMode.PreRelease);
   console.log(changesets.map((c) => c.version));
   assertNotEquals(changesets.length, 0);
 });
@@ -61,7 +59,7 @@ Deno.test("scrapeBetaChangesets", async () => {
   { searchMode: SearchMode.PreRelease },
 ].forEach((testcase) => {
   Deno.test(`filterChangesets(${JSON.stringify(testcase.searchMode)})`, async () => {
-    const changesets = await searchChangesets(DB_URL, testcase.searchMode);
+    const changesets = await searchChangesets(testcase.searchMode);
     assertNotEquals(changesets.length, 0);
   });
 });

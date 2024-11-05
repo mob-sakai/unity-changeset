@@ -4,6 +4,15 @@ export const UnityChangeset = UnityChangesetClass;
 export type UnityChangeset = UnityChangesetClass;
 
 const REGEXP_HUB_LINKS = /unityhub:\/\/\d{4}\.\d+\.\d+(a|b|f)\d+\/\w{12}/g;
+const REGEXP_UNITY_VERSION = /\d{4}\.\d+\.\d+(a|b|f)\d+/g;
+const UNITY_CHANGESETS_DB_URL =
+  "https://mob-sakai.github.io/unity-changeset/db";
+const UNITY_RSS_URLS: string[] = [
+  "https://unity.com/releases/editor/lts-releases.xml",
+  "https://unity.com/releases/editor/tech-and-preview-releases.xml",
+  "https://unity.com/releases/editor/beta-releases.xml",
+  "https://unity.com/releases/editor/alpha-releases.xml",
+];
 
 /*
 Unity release URLs for each lifecycle.
@@ -21,67 +30,37 @@ const UNITY_RELEASE_URLS: { [key: string]: string } = {
  * @returns An Unity changeset.
  */
 export async function getUnityChangeset(
-  db: string,
   version: string,
 ): Promise<UnityChangeset> {
-  let results = await loadDb(db, version);
-  if (0 < results.length) {
-    return results[0];
-  }
+  const db = await loadDb();
+  const results = db.filter((c) => c.version === version);
+  return results.length > 0
+    ? results[0]
+    : getUnityChangesetFromReleasePage(version);
+}
 
-  const match = version.match(/^(\d\.\d+\.\d+)(a|b|f|p)\d+$/);
+async function getUnityChangesetFromReleasePage(
+  version: string,
+): Promise<UnityChangeset> {
+  const match = version.match(/^(\d+\.\d+\.\d+)(a|b|f|p)\d+$/);
   const lifecycle = match?.[2] as string;
   const releaseUrl = UNITY_RELEASE_URLS[lifecycle];
-  if (lifecycle == "f") {
-    const shortVersion = match?.[1] as string;
-    results = (await getUnityChangesetsFromUrl(releaseUrl + shortVersion))
-      .filter((c) => c.version === version);
-  } else {
-    results = (await getUnityChangesetsFromUrl(releaseUrl + version))
-      .filter((c) => c.version === version);
-  }
-
-  if (0 < results.length) {
-    return results[0];
-  }
-
-  throw new Error(`No changeset found for '${version}'`);
-}
-
-export async function loadDb(
-  db: string,
-  version?: string,
-): Promise<UnityChangeset[]> {
-  const response = await fetch(db);
+  const shortVersion = match?.[1] as string;
+  const releasePageUrl = releaseUrl +
+    (lifecycle == "f" ? shortVersion : version);
+  const response = await fetch(releasePageUrl);
   const text = await response.text();
-  const lines = text.split("\n");
-
-  if (version) {
-    const startsWith = version + "\t";
-    return lines
-      .filter((line) => line.startsWith(startsWith))
-      .map((line) => UnityChangeset.createFromDb(line));
-  } else {
-    return lines
-      .map((line) => UnityChangeset.createFromDb(line));
+  const matchLink = text.match(REGEXP_HUB_LINKS);
+  if (!matchLink) {
+    throw new Error(`No changeset found at '${releasePageUrl}'`);
   }
-}
 
-function getUnityChangesetsFromUrl(
-  url: string,
-): Promise<UnityChangeset[]> {
-  return fetch(url)
-    .then((response) => response.text())
-    .then((raw) => {
-      const match = raw.match(REGEXP_HUB_LINKS);
+  const changeset = UnityChangeset.createFromHref(matchLink[0]);
+  if (changeset.version !== version) {
+    throw new Error(`No changeset found at '${releasePageUrl}'`);
+  }
 
-      if (!match) {
-        console.error(`No changesets found at '${url}'`);
-        return [];
-      }
-
-      return match.map((m) => UnityChangeset.createFromHref(m));
-    });
+  return changeset;
 }
 
 /*
@@ -156,14 +135,13 @@ export enum FormatMode {
 }
 
 export function listChangesets(
-  db: string,
   searchMode: SearchMode,
   filterOptions: FilterOptions,
   groupMode: GroupMode,
   outputMode: OutputMode,
   formatMode: FormatMode,
 ): Promise<string> {
-  return searchChangesets(db, searchMode)
+  return searchChangesets(searchMode)
     .then((results) => filterChangesets(results, filterOptions))
     .then((results) => groupChangesets(results, groupMode))
     .then((results) => {
@@ -196,19 +174,48 @@ export function listChangesets(
     });
 }
 
+async function loadDb(): Promise<UnityChangeset[]> {
+  const response = await fetch(UNITY_CHANGESETS_DB_URL);
+  const text = await response.text();
+  const lines = text.split("\n");
+  return lines
+    .map((line) => UnityChangeset.createFromDb(line));
+}
+
+async function findVersions(url: string): Promise<string[]> {
+  const response = await fetch(url);
+  const text = await response.text();
+  const lines = text.split("\n");
+
+  const versions = lines
+    .map((l) => l.match(REGEXP_UNITY_VERSION))
+    .filter((m) => m)
+    .map((m) => m?.[0] as string);
+  return Array.from(new Set<string>(versions));
+}
+
 export async function searchChangesets(
-  db: string,
   searchMode: SearchMode,
 ): Promise<UnityChangeset[]> {
-  const results = await loadDb(db);
+  const results = await loadDb();
+  const versions = await Promise.all(UNITY_RSS_URLS
+    .map((url) => findVersions(url)));
+  const appendResults = await Promise.all(
+    versions
+      .flat()
+      .filter((v) => !results.some((r) => r.version === v))
+      .map((v) => getUnityChangesetFromReleasePage(v)),
+  );
+  const allResults = results.concat(appendResults);
+
   switch (searchMode) {
     case SearchMode.All:
-      return results;
+      return allResults;
     case SearchMode.Default:
-      return results
+      return allResults
         .filter((c) => !c.preRelease);
     case SearchMode.PreRelease:
-      return results
+      return allResults
         .filter((c) => c.preRelease);
     default:
       throw Error(`The given search mode '${searchMode}' was not supported`);

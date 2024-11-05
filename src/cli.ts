@@ -30,9 +30,8 @@ new Command()
   .description("Find Unity changesets.")
   .example("unity-changeset 2018.4.36f1", "Get changeset of Unity 2018.4.36f1 ('6cd387d23174' will be output).")
   .arguments("<version>")
-  .globalOption("--db", "Database url", { default: "https://mob-sakai.github.io/unity-changeset/db" })
-  .action((options, version) => {
-    getUnityChangeset(options.db as string, version)
+  .action((_, version) => {
+    getUnityChangeset(version)
       .then((c) => console.log(c.changeset))
       .catch(() => {
         console.error("The given version was not found.");
@@ -46,7 +45,6 @@ new Command()
     "list",
     new Command()
       .description("List Unity changesets.")
-      .globalOption("--db", "Database url", { default: "https://mob-sakai.github.io/unity-changeset/db" })
       .example("unity-changeset list", "List changesets.")
       .example("unity-changeset list --all --json", "List changesets of all versions in json format.")
       .example("unity-changeset list --version-only --min 2018.3 --max 2019.4", "List all versions from 2018.3 to 2019.4.")
@@ -114,7 +112,7 @@ new Command()
             ? FormatMode.PrettyJson
             : FormatMode.None;
 
-        listChangesets(options.db as string, searchMode, filterOptions, groupMode, outputMode, formatMode)
+        listChangesets(searchMode, filterOptions, groupMode, outputMode, formatMode)
           .then((result) => console.log(result));
       }),
   )

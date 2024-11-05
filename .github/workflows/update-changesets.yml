@@ -2,7 +2,6 @@ name: update-changesets
 
 env:
   WORKFLOW_FILE: update-changesets.yml
-  DB_FILE: db
   RSS_URLS: |
     https://unity.com/releases/editor/lts-releases.xml
     https://unity.com/releases/editor/tech-and-preview-releases.xml
@@ -39,30 +38,7 @@ jobs:
           [ "$RESULT" = "false" ] && echo "::error::Other '${{ env.WORKFLOW_FILE }}' workflows are in progress." && exit 1 || :
 
       - name: 🛠️ Update changesets file
-        run: |
-          touch "${{ env.DB_FILE }}"
-          urls=(`echo "${{ env.RSS_URLS }}"`)
-          for url in "${urls[@]}"; do
-            # Find versions from RSS
-            echo "Processing: $url" | tee -a $GITHUB_STEP_SUMMARY
-            versions=($(curl -s "$url" | grep -oE "${{ env.REGEX_UNITY_VERSION }}" | sort -u))
-
-            for version in "${versions[@]}"; do
-                # Already exists
-                if grep -q "$version" "${{ env.DB_FILE }}"; then
-                    continue
-                fi
-
-                # Get changeset for the Unity version
-                changeset_output=$(npx unity-changeset "$version" 2>/dev/null)
-
-                if [ $? -eq 0 ]; then
-                    echo -e "$version\t$changeset_output" | tee -a "${{ env.DB_FILE }}" $GITHUB_STEP_SUMMARY
-                else
-                    echo "  Error: $version is not valid"
-                fi
-            done
-          done
+        run: npx unity-changeset list --all > db
 
       - name: Commit & Push changes
         uses: actions-js/push@master
