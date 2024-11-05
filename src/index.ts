@@ -206,7 +206,9 @@ export async function searchChangesets(
       .filter((v) => !results.some((r) => r.version === v))
       .map((v) => getUnityChangesetFromReleasePage(v)),
   );
-  const allResults = results.concat(appendResults);
+  const allResults = results
+    .concat(appendResults)
+    .sort((a, b) => b.versionNumber - a.versionNumber);
 
   switch (searchMode) {
     case SearchMode.All:
