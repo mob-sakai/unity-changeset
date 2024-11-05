@@ -2,12 +2,6 @@ name: update-changesets
 
 env:
   WORKFLOW_FILE: update-changesets.yml
-  RSS_URLS: |
-    https://unity.com/releases/editor/lts-releases.xml
-    https://unity.com/releases/editor/tech-and-preview-releases.xml
-    https://unity.com/releases/editor/beta-releases.xml
-    https://unity.com/releases/editor/alpha-releases.xml
-  REGEX_UNITY_VERSION: '[0-9]{4,}\.[0-9]{1,}\.[0-9]{1,}(a|b|f|rc|p)[0-9]{1,}'
 
 on:
   issue_comment:
@@ -28,6 +22,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: gh_pages
+
       - name: 🔍 Check other workflows
         run: |
           # Get in-progress or queued workflows.
@@ -38,7 +33,7 @@ jobs:
           [ "$RESULT" = "false" ] && echo "::error::Other '${{ env.WORKFLOW_FILE }}' workflows are in progress." && exit 1 || :
 
       - name: 🛠️ Update changesets file
-        run: npx unity-changeset list --all > db
+        run: npx unity-changeset list --all --all-lifecycles > db
 
       - name: Commit & Push changes
         uses: actions-js/push@master

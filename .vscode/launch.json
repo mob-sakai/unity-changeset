@@ -25,7 +25,7 @@
         },
         {
             "request": "launch",
-            "name": "list --versions",
+            "name": "list --versions --all --all-lifecycles",
             "type": "node",
             "program": "${workspaceFolder}/src/cli.ts",
             "cwd": "${workspaceFolder}",
@@ -39,7 +39,9 @@
             ],
             "args": [
                 "list",
-                "--versions"
+                "--versions",
+                "--all",
+                "--all-lifecycles"
             ],
             "attachSimplePort": 9229
         },
