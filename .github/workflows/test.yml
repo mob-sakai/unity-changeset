@@ -3,12 +3,12 @@ name: test
 on:
   pull_request:
     paths:
-      - "*.ts"
+      - "**.ts"
   push:
     branches:
       - "develop"
     paths:
-      - "*.ts"
+      - "**.ts"
   workflow_dispatch:
 
 jobs:
