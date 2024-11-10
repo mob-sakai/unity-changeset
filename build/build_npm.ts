@@ -1,4 +1,4 @@
-import { build, emptyDir } from "https://deno.land/x/dnt@0.33.1/mod.ts";
+import { build, emptyDir } from "https://deno.land/x/dnt@0.40.0/mod.ts";
 
 // delete previous build
 await emptyDir("./npm");
@@ -16,7 +16,6 @@ await build({
   outDir: "./npm",
   shims: {
     deno: true, // for Deno namespace
-    undici: true, // for fetch
   },
   // package.json properties
   package: {
@@ -35,13 +34,10 @@ await build({
     engines: {
       node: ">=14",
     },
-    devDependencies: {
-      "@types/node-fetch": "^2.5.7",
-    },
+  },
+  postBuild() {
+    Deno.copyFileSync("LICENSE", "npm/LICENSE");
+    Deno.copyFileSync("README.md", "npm/README.md");
+    Deno.copyFileSync("build/.releaserc.json", "npm/.releaserc.json");
   },
 });
-
-// post build steps
-Deno.copyFileSync("LICENSE", "npm/LICENSE");
-Deno.copyFileSync("README.md", "npm/README.md");
-Deno.copyFileSync("build/.releaserc.json", "npm/.releaserc.json");
