@@ -78,7 +78,9 @@ new Command()
           ? SearchMode.All
           : options.preRelease
             ? SearchMode.PreRelease
-            : SearchMode.Default;
+            : options.lts
+             ? SearchMode.LTS
+             : SearchMode.Default;
 
         // Group mode.
         const groupMode = (options.latestPatch || options.minorVersionOnly)

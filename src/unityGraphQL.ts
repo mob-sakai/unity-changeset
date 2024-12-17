@@ -13,9 +13,13 @@ export enum UnityReleaseStream {
 interface UnityReleasesResponse {
   getUnityReleases: {
     totalCount: number;
-    edges: { node: { version: string; shortRevision: string } }[];
+    edges: { node: { version: string; shortRevision: string; stream: UnityReleaseStream } }[];
     pageInfo: { hasNextPage: boolean };
   };
+}
+
+interface UnityReleasesMajorVersionsResponse {
+  getUnityReleaseMajorVersions: { version: string; }[];
 }
 
 export async function getUnityReleases(
@@ -38,6 +42,7 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
       node {
         version
         shortRevision
+        stream
       }
     }
     pageInfo {
@@ -58,7 +63,7 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
     const data: UnityReleasesResponse = await client.request(query, variables);
     results.push(
       ...data.getUnityReleases.edges.map((edge) =>
-        new UnityChangeset(edge.node.version, edge.node.shortRevision)
+        new UnityChangeset(edge.node.version, edge.node.shortRevision, edge.node.stream == UnityReleaseStream.LTS)
       ),
     );
     if (data.getUnityReleases.pageInfo.hasNextPage === false) {
@@ -69,4 +74,27 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
   }
 
   return results;
+}
+
+export async function getUnityReleasesInLTS(): Promise<UnityChangeset[]> {
+  const client = new GraphQLClient(UNITY_GRAPHQL_ENDPOINT);
+  const query = gql`
+query {
+  getUnityReleaseMajorVersions(
+    stream: []
+    platform: []
+    architecture: []
+    entitlements: []
+  ) {
+    version
+  }
+}
+`;
+  const data: UnityReleasesMajorVersionsResponse = await client.request(query);
+  const results = await Promise.all(data.getUnityReleaseMajorVersions
+    .map(async (v) => {
+      return await getUnityReleases(v.version, [UnityReleaseStream.LTS]);
+}));
+
+  return results.flat();
 }

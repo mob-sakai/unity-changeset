@@ -1,5 +1,5 @@
 import { UnityChangeset as UnityChangesetClass } from "./unityChangeset.ts";
-import { getUnityReleases, UnityReleaseStream } from "./unityGraphQL.ts";
+import { getUnityReleases, getUnityReleasesInLTS, UnityReleaseStream } from "./unityGraphQL.ts";
 
 export const UnityChangeset = UnityChangesetClass;
 export type UnityChangeset = UnityChangesetClass;
@@ -32,6 +32,7 @@ export enum SearchMode {
   All = 0,
   Default = 2,
   PreRelease = 3,
+  LTS = 4,
 }
 
 /*
@@ -151,6 +152,8 @@ export function searchChangesets(
         UnityReleaseStream.BETA,
         UnityReleaseStream.ALPHA,
       ]);
+    case SearchMode.LTS:
+      return getUnityReleasesInLTS();
     default:
       throw Error(`The given search mode '${searchMode}' was not supported`);
   }
