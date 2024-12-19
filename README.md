@@ -92,29 +92,58 @@ deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cl
 ```
 
 
-### Display help
+### Help
 
 ```
-$ unity-changeset -h
-Usage: Get a changeset for specific version
-  $ unity-changeset <version>
+  Usage:   unity-changeset <version>
 
-Usage: List changesets
-  $ unity-changeset list [options]
+  Description:
 
-Options:
-  --min <version>     Minimum version (included)
-  --max <version>     Maximum version (included)
-  --grep <version>    Grep version
-  --json              Output in json format
-  --pretty-json       Output in pretty json format
-  --all               List all changesets (alpha/beta included)
-  --beta              List alpha/beta changesets
-  --versions          Output only the available Unity versions
-  --minor-versions    Output only the available Unity minor versions
-  --latest-patch      Output only the latest Unity patch versions
-  --oldest-patch      Output only the oldest Unity patch versions
-  --oldest-lifecycle  Output only the latest lifecycle Unity patch versions
+    Find Unity changesets.
+
+  Options:
+
+    -h, --help     - Show this help.
+    -V, --version  - Show the version number for this program.
+```
+
+```
+  Usage:   unity-changeset list
+
+  Description:
+
+    List Unity changesets.
+
+  Options:
+
+    -h, --help  - Show this help.
+
+  Search options:
+
+    --all                  - Search all changesets (alpha/beta included)
+    --pre-release, --beta  - Search only pre-release (alpha/beta) changesets
+    --lts                  - Only the LTS versions
+    --xlts                 - Only the LTS/XLTS versions (require 'Enterprise' or 'Industry' license to install XLTS version)
+
+  Filter options:
+
+    --min               <version>  - Minimum version (included)
+    --max               <version>  - Maximum version (included)
+    --grep              <regex>    - Regular expression (e.g. '20(18|19).4.*')
+    --latest-lifecycle             - Only the latest lifecycle (default)
+    --all-lifecycles               - All lifecycles
+
+  Group options:
+
+    --latest-patch  - The latest patch versions only
+    --oldest-patch  - The oldest patch versions in lateat lifecycle only  (Conflicts: --latest-patch)
+
+  Output options:
+
+    --version-only, --versions              - Outputs only the version (no changesets)
+    --minor-version-only, --minor-versions  - Outputs only the minor version (no changesets)
+    --json                                  - Output in json format
+    --pretty-json                           - Output in pretty json format
 ```
 
 
