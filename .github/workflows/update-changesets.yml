@@ -4,7 +4,6 @@ env:
   WORKFLOW_FILE: update-changesets.yml
 
 on:
-  workflow_dispatch:
   issue_comment:
     types:
       - created
