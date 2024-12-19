@@ -10,6 +10,11 @@ export enum UnityReleaseStream {
   ALPHA = "ALPHA",
 }
 
+export enum UnityReleaseEntitlement {
+  XLTS = "XLTS",
+  U7_ALPHA = "U7_ALPHA",
+}
+
 interface UnityReleasesResponse {
   getUnityReleases: {
     totalCount: number;
@@ -25,17 +30,18 @@ interface UnityReleasesMajorVersionsResponse {
 export async function getUnityReleases(
   version: string,
   stream: UnityReleaseStream[] = [],
+  entitlements: UnityReleaseEntitlement[] = []
 ): Promise<UnityChangeset[]> {
   const client = new GraphQLClient(UNITY_GRAPHQL_ENDPOINT);
   const query = gql`
-query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityReleaseStream!])
+query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityReleaseStream!], $entitlements: [UnityReleaseEntitlement!])
 {
   getUnityReleases(
     limit: $limit
     skip: $skip
     stream: $stream
     version: $version
-    entitlements: []
+    entitlements: $entitlements
   ) {
     totalCount
     edges {
@@ -51,11 +57,13 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
   }
 }
 `;
+
   const variables = {
     limit: 1000,
     skip: 0,
     version: version,
     stream: stream,
+    entitlements: entitlements,
   };
 
   const results: UnityChangeset[] = [];
@@ -76,25 +84,33 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
   return results;
 }
 
-export async function getUnityReleasesInLTS(): Promise<UnityChangeset[]> {
+export async function getUnityReleasesInLTS(
+  entitlements: UnityReleaseEntitlement[] = [],
+): Promise<UnityChangeset[]> {
   const client = new GraphQLClient(UNITY_GRAPHQL_ENDPOINT);
   const query = gql`
-query {
+query GetReleaseMajorVersions($entitlements: [UnityReleaseEntitlement!])
+{
   getUnityReleaseMajorVersions(
     stream: []
     platform: []
     architecture: []
-    entitlements: []
+    entitlements: $entitlements
   ) {
     version
   }
 }
 `;
-  const data: UnityReleasesMajorVersionsResponse = await client.request(query);
+
+  const variables = {
+    entitlements: entitlements,
+  };
+
+  const data: UnityReleasesMajorVersionsResponse = await client.request(query, variables);
   const results = await Promise.all(data.getUnityReleaseMajorVersions
     .map(async (v) => {
-      return await getUnityReleases(v.version, [UnityReleaseStream.LTS]);
-}));
+      return await getUnityReleases(v.version, [UnityReleaseStream.LTS], entitlements);
+    }));
 
   return results.flat();
 }

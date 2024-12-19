@@ -52,8 +52,10 @@ new Command()
       .example("unity-changeset list --lts --latest-patch", "List changesets of the latest patch versions (LTS only).")
       // Search options.
       .group("Search options")
-      .option("--all", "Search all changesets (alpha/beta included)", { conflicts: ["pre-release"] })
-      .option("--pre-release, --beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["all"] })
+      .option("--all", "Search all changesets (alpha/beta included)")
+      .option("--pre-release, --beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["all", "lts", "xlts"] })
+      .option("--lts", "Only the LTS versions", { conflicts: ["all", "pre-release", "xlts"] })
+      .option("--xlts", "Only the LTS/XLTS versions (require 'Enterprise' or 'Industry' license to install XLTS version)", { conflicts: ["all", "pre-release", "lts"] })
       // Filter options.
       .group("Filter options")
       .option("--min <version>", "Minimum version (included)")
@@ -61,7 +63,6 @@ new Command()
       .option("--grep <regex>", "Regular expression (e.g. '20(18|19).4.*')")
       .option("--latest-lifecycle", "Only the latest lifecycle (default)")
       .option("--all-lifecycles", "All lifecycles", { conflicts: ["latest-lifecycle"] })
-      .option("--lts", "Only the LTS versions", { conflicts: ["pre-release"] })
       // Group options.
       .group("Group options")
       .option("--latest-patch", "The latest patch versions only")
@@ -79,8 +80,10 @@ new Command()
           : options.preRelease
             ? SearchMode.PreRelease
             : options.lts
-             ? SearchMode.LTS
-             : SearchMode.Default;
+              ? SearchMode.LTS
+              : options.xlts
+                ? SearchMode.XLTS
+                : SearchMode.Default;
 
         // Group mode.
         const groupMode = (options.latestPatch || options.minorVersionOnly)
