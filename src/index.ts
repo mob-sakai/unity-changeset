@@ -142,7 +142,12 @@ export function searchChangesets(
 ): Promise<UnityChangeset[]> {
   switch (searchMode) {
     case SearchMode.All:
-      return getUnityReleases(".", []);
+      return getUnityReleases(".", [
+        UnityReleaseStream.LTS,
+        UnityReleaseStream.TECH,
+        UnityReleaseStream.BETA,
+        UnityReleaseStream.ALPHA,
+      ]);
     case SearchMode.Default:
       return getUnityReleases(".", [
         UnityReleaseStream.LTS,
