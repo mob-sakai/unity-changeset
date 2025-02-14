@@ -59,7 +59,7 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
 `;
 
   const variables = {
-    limit: 1000,
+    limit: 500,
     skip: 0,
     version: version,
     stream: stream,
