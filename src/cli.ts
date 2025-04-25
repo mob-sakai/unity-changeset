@@ -54,8 +54,9 @@ new Command()
       .group("Search options")
       .option("--all", "Search all changesets (alpha/beta included)")
       .option("--pre-release, --beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["all", "lts", "xlts"] })
-      .option("--lts", "Only the LTS versions", { conflicts: ["all", "pre-release", "xlts"] })
-      .option("--xlts", "Only the LTS/XLTS versions (require 'Enterprise' or 'Industry' license to install XLTS version)", { conflicts: ["all", "pre-release", "lts"] })
+      .option("--lts", "Only the LTS versions", { conflicts: ["all", "pre-release", "xlts", "supported"] })
+      .option("--xlts", "Only the LTS/XLTS versions (require 'Enterprise' or 'Industry' license to install XLTS version)", { conflicts: ["all", "pre-release", "lts", "supported"] })
+      .option("--supported", "Only the supported versions (including Unity 6000)", { conflicts: ["all", "pre-release", "lts", "xlts"] })
       // Filter options.
       .group("Filter options")
       .option("--min <version>", "Minimum version (included)")
@@ -83,7 +84,9 @@ new Command()
               ? SearchMode.LTS
               : options.xlts
                 ? SearchMode.XLTS
-                : SearchMode.Default;
+                : options.supported
+                  ? SearchMode.SUPPORTED
+                  : SearchMode.Default;
 
         // Group mode.
         const groupMode = (options.latestPatch || options.minorVersionOnly)
