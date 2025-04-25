@@ -4,6 +4,7 @@ import { gql, GraphQLClient } from "npm:graphql-request@6.1.0";
 const UNITY_GRAPHQL_ENDPOINT: string = "https://services.unity.com/graphql";
 
 export enum UnityReleaseStream {
+  SUPPORTED = "SUPPORTED",
   LTS = "LTS",
   TECH = "TECH",
   BETA = "BETA",
