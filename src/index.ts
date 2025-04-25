@@ -1,5 +1,10 @@
 import { UnityChangeset as UnityChangesetClass } from "./unityChangeset.ts";
-import { getUnityReleases, getUnityReleasesInLTS, UnityReleaseEntitlement, UnityReleaseStream } from "./unityGraphQL.ts";
+import {
+  getUnityReleases,
+  getUnityReleasesInLTS,
+  UnityReleaseEntitlement,
+  UnityReleaseStream,
+} from "./unityGraphQL.ts";
 
 export const UnityChangeset = UnityChangesetClass;
 export type UnityChangeset = UnityChangesetClass;
@@ -12,8 +17,9 @@ export type UnityChangeset = UnityChangesetClass;
 export async function getUnityChangeset(
   version: string,
 ): Promise<UnityChangeset> {
-  const changesets = (await getUnityReleases(version, []))
-    .filter((c) => c.version === version);
+  const changesets = (await getUnityReleases(version, [])).filter(
+    (c) => c.version === version,
+  );
   if (0 < changesets.length) {
     return changesets[0];
   }
@@ -34,6 +40,7 @@ export enum SearchMode {
   PreRelease = 3,
   LTS = 4,
   XLTS = 5,
+  SUPPORTED = 6,
 }
 
 /*
@@ -144,6 +151,7 @@ export function searchChangesets(
     case SearchMode.All:
       return getUnityReleases(".", [
         UnityReleaseStream.LTS,
+        UnityReleaseStream.SUPPORTED,
         UnityReleaseStream.TECH,
         UnityReleaseStream.BETA,
         UnityReleaseStream.ALPHA,
@@ -151,6 +159,7 @@ export function searchChangesets(
     case SearchMode.Default:
       return getUnityReleases(".", [
         UnityReleaseStream.LTS,
+        UnityReleaseStream.SUPPORTED,
         UnityReleaseStream.TECH,
       ]);
     case SearchMode.PreRelease:
@@ -162,6 +171,8 @@ export function searchChangesets(
       return getUnityReleasesInLTS();
     case SearchMode.XLTS:
       return getUnityReleasesInLTS([UnityReleaseEntitlement.XLTS]);
+    case SearchMode.SUPPORTED:
+      return getUnityReleases(".", [UnityReleaseStream.SUPPORTED]);
     default:
       throw Error(`The given search mode '${searchMode}' was not supported`);
   }
@@ -186,17 +197,16 @@ export function filterChangesets(
   // Lifecycle filter
   const lc = options.allLifecycles
     ? null
-    : Object.values(groupBy(changesets, (r) => r.minor))
-      .map((g) => g[0]);
+    : Object.values(groupBy(changesets, (r) => r.minor)).map((g) => g[0]);
 
-  return changesets
-    .filter((c) =>
+  return changesets.filter(
+    (c) =>
       min <= c.versionNumber &&
       c.versionNumber <= max &&
       (!options.lts || c.lts) &&
       (!regex || regex.test(c.version)) &&
-      (!lc || lc.some((l) => l.minor == c.minor && l.lifecycle == c.lifecycle))
-    );
+      (!lc || lc.some((l) => l.minor == c.minor && l.lifecycle == c.lifecycle)),
+  );
 }
 
 export function groupChangesets(
@@ -213,8 +223,9 @@ export function groupChangesets(
         .map((g) => g.filter((v) => v.lifecycle == g[0].lifecycle))
         .flat();
     case GroupMode.LatestPatch:
-      return Object.values(groupBy(changesets, (r) => r.minor))
-        .map((g) => g[0]);
+      return Object.values(groupBy(changesets, (r) => r.minor)).map(
+        (g) => g[0],
+      );
     case GroupMode.OldestPatch:
       return Object.values(groupBy(changesets, (r) => r.minor))
         .map((g) => g.filter((v) => v.lifecycle == g[0].lifecycle))
