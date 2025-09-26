@@ -2,6 +2,26 @@ const REGEXP_UNITY = /^(\d+)\.(\d+)\.(\d+)([a-zA-Z]+)(\d+)/;
 const REGEXP_UNITY_NUM = /^(\d+)\.?(\d+)?\.?(\d+)?([a-zA-Z]+)?(\d+)?/;
 
 /*
+Unity Release Stream
+*/
+export enum UnityReleaseStream {
+  SUPPORTED = "SUPPORTED",
+  LTS = "LTS",
+  TECH = "TECH",
+  BETA = "BETA",
+  ALPHA = "ALPHA",
+  UNDEFINED = "UNDEFINED",
+}
+
+/*
+Unity Release Entitlement
+*/
+export enum UnityReleaseEntitlement {
+  XLTS = "XLTS",
+  U7_ALPHA = "U7_ALPHA",
+}
+
+/*
 Unity Changeset
 */
 export class UnityChangeset {
@@ -11,9 +31,28 @@ export class UnityChangeset {
   minor = "";
   lifecycle = "";
   lts = false;
+  stream: UnityReleaseStream = UnityReleaseStream.UNDEFINED;
+  entitlements: UnityReleaseEntitlement[] = [];
+  xlts = false;
 
-  constructor(version: string, changeset: string, lts: boolean = false) {
-    Object.assign(this, { version, changeset, lts });
+  constructor(
+    version: string,
+    changeset: string,
+    lts: boolean = false,
+    stream?: UnityReleaseStream,
+    entitlements?: UnityReleaseEntitlement[],
+  ) {
+    Object.assign(this, { version, changeset });
+
+    if (stream && entitlements) {
+      this.stream = stream;
+      this.entitlements = entitlements;
+      this.lts = stream === UnityReleaseStream.LTS;
+      this.xlts = entitlements.includes(UnityReleaseEntitlement.XLTS);
+    } else {
+      this.lts = lts;
+      this.stream = lts ? UnityReleaseStream.LTS : UnityReleaseStream.UNDEFINED;
+    }
 
     const match = this.version.match(REGEXP_UNITY);
     if (match) {

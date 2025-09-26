@@ -1,11 +1,12 @@
-import { UnityChangeset as UnityChangesetClass } from "./unityChangeset.ts";
+import { getUnityReleases, getUnityReleasesInLTS } from "./unityGraphQL.ts";
 import {
-  getUnityReleases,
-  getUnityReleasesInLTS,
+  UnityChangeset as UnityChangesetClass,
   UnityReleaseEntitlement,
   UnityReleaseStream,
-} from "./unityGraphQL.ts";
+} from "./unityChangeset.ts";
 
+const UNITY_CHANGESETS_DB_URL =
+  "https://mob-sakai.github.io/unity-changeset/dbV3";
 export const UnityChangeset = UnityChangesetClass;
 export type UnityChangeset = UnityChangesetClass;
 
@@ -17,7 +18,14 @@ export type UnityChangeset = UnityChangesetClass;
 export async function getUnityChangeset(
   version: string,
 ): Promise<UnityChangeset> {
-  const changesets = (await getUnityReleases(version, [])).filter(
+  let changesets: UnityChangeset[];
+  try {
+    changesets = await getUnityReleases(version, []);
+  } catch {
+    changesets = await getAllChangesetsFromDb();
+  }
+
+  changesets = changesets.filter(
     (c) => c.version === version,
   );
   if (0 < changesets.length) {
@@ -144,37 +152,25 @@ export function listChangesets(
     });
 }
 
-export function searchChangesets(
+export async function searchChangesets(
   searchMode: SearchMode,
 ): Promise<UnityChangeset[]> {
-  switch (searchMode) {
-    case SearchMode.All:
-      return getUnityReleases(".", [
-        UnityReleaseStream.LTS,
-        UnityReleaseStream.SUPPORTED,
-        UnityReleaseStream.TECH,
-        UnityReleaseStream.BETA,
-        UnityReleaseStream.ALPHA,
-      ]);
-    case SearchMode.Default:
-      return getUnityReleases(".", [
-        UnityReleaseStream.LTS,
-        UnityReleaseStream.SUPPORTED,
-        UnityReleaseStream.TECH,
-      ]);
-    case SearchMode.PreRelease:
-      return getUnityReleases(".", [
-        UnityReleaseStream.BETA,
-        UnityReleaseStream.ALPHA,
-      ]);
-    case SearchMode.LTS:
-      return getUnityReleasesInLTS();
-    case SearchMode.XLTS:
-      return getUnityReleasesInLTS([UnityReleaseEntitlement.XLTS]);
-    case SearchMode.SUPPORTED:
-      return getUnityReleases(".", [UnityReleaseStream.SUPPORTED]);
-    default:
-      throw Error(`The given search mode '${searchMode}' was not supported`);
+  try {
+    switch (searchMode) {
+      case SearchMode.All:
+      case SearchMode.Default:
+      case SearchMode.PreRelease:
+      case SearchMode.SUPPORTED:
+        return await getUnityReleases(".", searchModeToStreams(searchMode));
+      case SearchMode.LTS:
+        return await getUnityReleasesInLTS();
+      case SearchMode.XLTS:
+        return await getUnityReleasesInLTS([UnityReleaseEntitlement.XLTS]);
+      default:
+        throw Error(`The given search mode '${searchMode}' was not supported`);
+    }
+  } catch {
+    return await searchChangesetsFromDb(searchMode);
   }
 }
 
@@ -240,3 +236,67 @@ const groupBy = <T, K extends string>(arr: T[], key: (i: T) => K) =>
     (groups[key(item)] ||= []).push(item);
     return groups;
   }, {} as Record<K, T[]>);
+
+function searchModeToStreams(
+  searchMode: SearchMode,
+): UnityReleaseStream[] {
+  switch (searchMode) {
+    case SearchMode.All:
+      return [
+        UnityReleaseStream.LTS,
+        UnityReleaseStream.SUPPORTED,
+        UnityReleaseStream.TECH,
+        UnityReleaseStream.BETA,
+        UnityReleaseStream.ALPHA,
+      ];
+    case SearchMode.Default:
+      return [
+        UnityReleaseStream.LTS,
+        UnityReleaseStream.SUPPORTED,
+        UnityReleaseStream.TECH,
+      ];
+    case SearchMode.PreRelease:
+      return [
+        UnityReleaseStream.ALPHA,
+        UnityReleaseStream.BETA,
+      ];
+    case SearchMode.LTS:
+    case SearchMode.XLTS:
+      return [
+        UnityReleaseStream.LTS,
+      ];
+    case SearchMode.SUPPORTED:
+      return [
+        UnityReleaseStream.SUPPORTED,
+      ];
+    default:
+      throw Error(`The given search mode '${searchMode}' was not supported`);
+  }
+}
+
+export function getAllChangesetsFromDb(): Promise<UnityChangeset[]> {
+  return fetch(UNITY_CHANGESETS_DB_URL)
+    .then((res) => {
+      if (!res.ok) {
+        throw Error(
+          `The Unity changeset database could not be fetched: ${res.status} ${res.statusText}`,
+        );
+      }
+
+      return res.json() as Promise<UnityChangeset[]>;
+    });
+}
+
+export function searchChangesetsFromDb(
+  searchMode: SearchMode,
+): Promise<UnityChangeset[]> {
+  return getAllChangesetsFromDb()
+    .then((changesets: UnityChangeset[]) => {
+      if (!changesets || changesets.length == 0) return [];
+
+      const streams = searchModeToStreams(searchMode);
+      return searchMode === SearchMode.XLTS
+        ? changesets.filter((c) => streams.includes(c.stream))
+        : changesets.filter((c) => streams.includes(c.stream) && !c.xlts);
+    });
+}

@@ -1,20 +1,11 @@
-import { UnityChangeset } from "./unityChangeset.ts";
+import {
+  UnityChangeset,
+  UnityReleaseEntitlement,
+  UnityReleaseStream,
+} from "./unityChangeset.ts";
 import { gql, GraphQLClient } from "npm:graphql-request@6.1.0";
 
 const UNITY_GRAPHQL_ENDPOINT: string = "https://services.unity.com/graphql";
-
-export enum UnityReleaseStream {
-  SUPPORTED = "SUPPORTED",
-  LTS = "LTS",
-  TECH = "TECH",
-  BETA = "BETA",
-  ALPHA = "ALPHA",
-}
-
-export enum UnityReleaseEntitlement {
-  XLTS = "XLTS",
-  U7_ALPHA = "U7_ALPHA",
-}
 
 interface UnityReleasesResponse {
   getUnityReleases: {
@@ -24,6 +15,7 @@ interface UnityReleasesResponse {
         version: string;
         shortRevision: string;
         stream: UnityReleaseStream;
+        entitlements: UnityReleaseEntitlement[];
       };
     }[];
     pageInfo: { hasNextPage: boolean };
@@ -56,6 +48,7 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
         version
         shortRevision
         stream
+        entitlements
       }
     }
     pageInfo {
@@ -81,7 +74,9 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
         new UnityChangeset(
           edge.node.version,
           edge.node.shortRevision,
-          edge.node.stream == UnityReleaseStream.LTS,
+          edge.node.stream === UnityReleaseStream.LTS,
+          edge.node.stream,
+          edge.node.entitlements,
         )
       ),
     );

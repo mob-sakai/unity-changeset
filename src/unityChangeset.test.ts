@@ -9,6 +9,7 @@ import {
   getUnityChangeset,
   groupChangesets,
   searchChangesets,
+  searchChangesetsFromDb,
   GroupMode,
   SearchMode,
   UnityChangeset,
@@ -128,4 +129,9 @@ const changesetsForTest = [
     console.log(changesets.map((c) => `${c.version}`));
     assertEquals(changesets.length, testcase.expected);
   });
+});
+
+Deno.test("scrapeArchivedChangesetsFromDb", async () => {
+  const changesets = await searchChangesetsFromDb(SearchMode.Default);
+  assertNotEquals(changesets.length, 0);
 });
