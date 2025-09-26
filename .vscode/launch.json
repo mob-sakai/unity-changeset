@@ -8,7 +8,7 @@
       "program": "${workspaceFolder}/src/cli.ts",
       "cwd": "${workspaceFolder}",
       "env": {},
-      "runtimeExecutable": "/Users/takashi.sakai/.asdf/shims/deno",
+      "runtimeExecutable": "deno",
       "runtimeArgs": [
         "run",
         "--unstable",
@@ -27,7 +27,7 @@
       "program": "${workspaceFolder}/src/cli.ts",
       "cwd": "${workspaceFolder}",
       "env": {},
-      "runtimeExecutable": "/Users/takashi.sakai/.asdf/shims/deno",
+      "runtimeExecutable": "deno",
       "runtimeArgs": [
         "run",
         "--unstable",
@@ -49,7 +49,7 @@
       "program": "${workspaceFolder}/src/cli.ts",
       "cwd": "${workspaceFolder}",
       "env": {},
-      "runtimeExecutable": "/Users/takashi.sakai/.asdf/shims/deno",
+      "runtimeExecutable": "deno",
       "runtimeArgs": [
         "run",
         "--unstable",
@@ -68,7 +68,7 @@
       "program": "${workspaceFolder}/src/cli.ts",
       "cwd": "${workspaceFolder}",
       "env": {},
-      "runtimeExecutable": "/Users/takashi.sakai/.asdf/shims/deno",
+      "runtimeExecutable": "deno",
       "runtimeArgs": [
         "run",
         "--unstable",
@@ -87,7 +87,7 @@
       "program": "${workspaceFolder}/src/cli.ts",
       "cwd": "${workspaceFolder}",
       "env": {},
-      "runtimeExecutable": "/Users/takashi.sakai/.asdf/shims/deno",
+      "runtimeExecutable": "deno",
       "runtimeArgs": [
         "run",
         "--unstable",

@@ -3,7 +3,7 @@ import {
   assertEquals,
   assertNotEquals,
   assertRejects,
-} from "https://deno.land/std@0.181.0/testing/asserts.ts";
+} from "std/testing/asserts";
 import {
   filterChangesets,
   getUnityChangeset,
@@ -13,6 +13,7 @@ import {
   GroupMode,
   SearchMode,
   UnityChangeset,
+  UnityReleaseStream,
 } from "./index.ts";
 
 Deno.test("UnityChangeset.toNumber min", () => {
@@ -50,14 +51,12 @@ Deno.test("scrapeArchivedChangesets", async () => {
 
 Deno.test("scrapeBetaChangesets", async () => {
   const changesets = await searchChangesets(SearchMode.PreRelease);
-  console.log(changesets.map((c) => c.version));
   assertNotEquals(changesets.length, 0);
 });
 
 // At least one changeset from unity 6000 version should be found.
 Deno.test("scrapeUnity6000Supported", async () => {
   const changesets = await searchChangesets(SearchMode.SUPPORTED);
-  console.log(changesets.map((c) => c.version));
   assertNotEquals(changesets.length, 0);
 
   const unity6000 = changesets.find(c => c.version.startsWith("6000"));
@@ -84,9 +83,9 @@ const changesetsForTest = [
   new UnityChangeset("2018.3.0f1", "000000000000"),
   new UnityChangeset("2018.3.1f1", "000000000000"),
   new UnityChangeset("2018.3.2f1", "000000000000"),
-  new UnityChangeset("2018.4.0f1", "000000000000", true),
-  new UnityChangeset("2018.4.1f1", "000000000000", true),
-  new UnityChangeset("2018.4.2f1", "000000000000", true),
+  new UnityChangeset("2018.4.0f1", "000000000000", UnityReleaseStream.LTS),
+  new UnityChangeset("2018.4.1f1", "000000000000", UnityReleaseStream.LTS),
+  new UnityChangeset("2018.4.2f1", "000000000000", UnityReleaseStream.LTS),
   new UnityChangeset("2019.1.0a1", "000000000000"),
   new UnityChangeset("2019.1.0a2", "000000000000"),
   new UnityChangeset("2019.1.0b1", "000000000000"),
@@ -112,7 +111,6 @@ const changesetsForTest = [
 ].forEach((testcase) => {
   Deno.test(`filterChangesets(${JSON.stringify(testcase.options)})`, () => {
     const changesets = filterChangesets(changesetsForTest, testcase.options);
-    console.log(changesets.map((c) => `${c.version}`));
     assertEquals(changesets.length, testcase.expected);
   });
 });
@@ -126,7 +124,6 @@ const changesetsForTest = [
 ].forEach((testcase) => {
   Deno.test(`groupChangesets(${testcase.groupMode})`, () => {
     const changesets = groupChangesets(changesetsForTest, testcase.groupMode);
-    console.log(changesets.map((c) => `${c.version}`));
     assertEquals(changesets.length, testcase.expected);
   });
 });

@@ -17,6 +17,7 @@ await build({
   shims: {
     deno: true, // for Deno namespace
   },
+  importMap: "./deno.json",
   // package.json properties
   package: {
     name: "unity-changeset",
@@ -32,7 +33,7 @@ await build({
       url: "https://github.com/mob-sakai/unity-changeset/issues",
     },
     engines: {
-      node: ">=14",
+      node: ">=18",
     },
   },
   postBuild() {

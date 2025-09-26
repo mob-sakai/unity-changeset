@@ -4,35 +4,43 @@ import {
   UnityReleaseEntitlement,
   UnityReleaseStream,
 } from "./unityChangeset.ts";
+import {
+  groupBy,
+  sanitizeVersion,
+  searchModeToStreams,
+  validateFilterOptions,
+} from "./utils.ts";
 
 const UNITY_CHANGESETS_DB_URL =
   "https://mob-sakai.github.io/unity-changeset/dbV3";
 export const UnityChangeset = UnityChangesetClass;
 export type UnityChangeset = UnityChangesetClass;
+export { UnityReleaseEntitlement, UnityReleaseStream };
 
-/*
- * Get an Unity changeset from specific Unity version.
- * @param version The Unity version.
- * @returns An Unity changeset.
- */
 export async function getUnityChangeset(
   version: string,
 ): Promise<UnityChangeset> {
+  const sanitizedVersion = sanitizeVersion(version);
+
   let changesets: UnityChangeset[];
   try {
-    changesets = await getUnityReleases(version, []);
+    changesets = await getUnityReleases(sanitizedVersion, []);
   } catch {
     changesets = await getAllChangesetsFromDb();
   }
 
+  if (!changesets || !Array.isArray(changesets)) {
+    throw new Error("Failed to retrieve changesets");
+  }
+
   changesets = changesets.filter(
-    (c) => c.version === version,
+    (c) => c.version === sanitizedVersion,
   );
   if (0 < changesets.length) {
     return changesets[0];
   }
 
-  throw Error(`The given version '${version}' was not found.`);
+  throw Error(`The given version '${sanitizedVersion}' was not found.`);
 }
 
 /*
@@ -178,7 +186,10 @@ export function filterChangesets(
   changesets: UnityChangeset[],
   options: FilterOptions,
 ): UnityChangeset[] {
-  if (!changesets || changesets.length == 0) return [];
+  if (!changesets || !Array.isArray(changesets)) return [];
+  if (changesets.length == 0) return [];
+
+  validateFilterOptions(options);
 
   // Min version number
   const min = options.min
@@ -209,7 +220,8 @@ export function groupChangesets(
   changesets: UnityChangeset[],
   groupMode: GroupMode,
 ): UnityChangeset[] {
-  if (!changesets || changesets.length == 0) return [];
+  if (!changesets || !Array.isArray(changesets)) return [];
+  if (changesets.length == 0) return [];
 
   switch (groupMode) {
     case GroupMode.All:
@@ -231,49 +243,6 @@ export function groupChangesets(
   }
 }
 
-const groupBy = <T, K extends string>(arr: T[], key: (i: T) => K) =>
-  arr.reduce((groups, item) => {
-    (groups[key(item)] ||= []).push(item);
-    return groups;
-  }, {} as Record<K, T[]>);
-
-function searchModeToStreams(
-  searchMode: SearchMode,
-): UnityReleaseStream[] {
-  switch (searchMode) {
-    case SearchMode.All:
-      return [
-        UnityReleaseStream.LTS,
-        UnityReleaseStream.SUPPORTED,
-        UnityReleaseStream.TECH,
-        UnityReleaseStream.BETA,
-        UnityReleaseStream.ALPHA,
-      ];
-    case SearchMode.Default:
-      return [
-        UnityReleaseStream.LTS,
-        UnityReleaseStream.SUPPORTED,
-        UnityReleaseStream.TECH,
-      ];
-    case SearchMode.PreRelease:
-      return [
-        UnityReleaseStream.ALPHA,
-        UnityReleaseStream.BETA,
-      ];
-    case SearchMode.LTS:
-    case SearchMode.XLTS:
-      return [
-        UnityReleaseStream.LTS,
-      ];
-    case SearchMode.SUPPORTED:
-      return [
-        UnityReleaseStream.SUPPORTED,
-      ];
-    default:
-      throw Error(`The given search mode '${searchMode}' was not supported`);
-  }
-}
-
 export function getAllChangesetsFromDb(): Promise<UnityChangeset[]> {
   return fetch(UNITY_CHANGESETS_DB_URL)
     .then((res) => {
@@ -284,6 +253,12 @@ export function getAllChangesetsFromDb(): Promise<UnityChangeset[]> {
       }
 
       return res.json() as Promise<UnityChangeset[]>;
+    })
+    .then((data) => {
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid changeset database format: expected array");
+      }
+      return data;
     });
 }
 
@@ -292,7 +267,8 @@ export function searchChangesetsFromDb(
 ): Promise<UnityChangeset[]> {
   return getAllChangesetsFromDb()
     .then((changesets: UnityChangeset[]) => {
-      if (!changesets || changesets.length == 0) return [];
+      if (!changesets || !Array.isArray(changesets)) return [];
+      if (changesets.length == 0) return [];
 
       const streams = searchModeToStreams(searchMode);
       return searchMode === SearchMode.XLTS

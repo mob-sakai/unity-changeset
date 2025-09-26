@@ -1,6 +1,6 @@
 // deno-fmt-ignore-file
-import { Command } from "https://deno.land/x/cliffy@v0.25.7/command/command.ts";
-import { resolve } from "https://deno.land/std@0.181.0/path/mod.ts";
+import { Command } from "cliffy/command";
+import { resolve } from "std/path";
 import {
   getUnityChangeset,
   listChangesets,

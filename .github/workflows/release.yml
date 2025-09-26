@@ -19,10 +19,6 @@ jobs:
 
       - run: deno task build
 
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 16
-
       - uses: cycjimmy/semantic-release-action@v5
         with:
           working_directory: npm
