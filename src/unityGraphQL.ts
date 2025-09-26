@@ -88,6 +88,14 @@ async function requestWithErrorHandling<T>(
   }
 }
 
+/**
+ * Retrieves Unity releases from the GraphQL API based on version, stream, and entitlements.
+ * @param version - The version pattern to search for.
+ * @param stream - The array of release streams to filter by.
+ * @param entitlements - The array of entitlements to filter by.
+ * @returns A Promise that resolves to an array of UnityChangeset objects.
+ * @throws Error if the API response is invalid.
+ */
 export async function getUnityReleases(
   version: string,
   stream: UnityReleaseStream[] = [],
@@ -176,6 +184,12 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
   return results;
 }
 
+/**
+ * Retrieves Unity releases in LTS from the GraphQL API based on entitlements.
+ * @param entitlements - The array of entitlements to filter by.
+ * @returns A Promise that resolves to an array of UnityChangeset objects.
+ * @throws Error if the API response is invalid.
+ */
 export async function getUnityReleasesInLTS(
   entitlements: UnityReleaseEntitlement[] = [],
 ): Promise<UnityChangeset[]> {
