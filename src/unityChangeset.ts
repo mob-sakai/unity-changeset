@@ -21,9 +21,9 @@ export enum UnityReleaseEntitlement {
   U7_ALPHA = "U7_ALPHA",
 }
 
-/*
-Unity Changeset
-*/
+/**
+ * Represents a Unity changeset with version, changeset hash, and metadata.
+ */
 export class UnityChangeset {
   version = "";
   changeset = "";
@@ -35,6 +35,14 @@ export class UnityChangeset {
   entitlements: UnityReleaseEntitlement[] = [];
   xlts = false;
 
+  /**
+   * Creates a new UnityChangeset instance.
+   * @param version - The Unity version string.
+   * @param changeset - The changeset hash.
+   * @param stream - The release stream.
+   * @param entitlements - The entitlements array.
+   * @throws Error if version or changeset is invalid.
+   */
   constructor(
     version: string,
     changeset: string,
@@ -64,10 +72,20 @@ export class UnityChangeset {
     }
   }
 
+  /**
+   * Returns a string representation of the changeset in the format "version\tchangeset".
+   * @returns The string representation.
+   */
   toString = (): string => {
     return `${this.version}\t${this.changeset}`;
   };
 
+  /**
+   * Converts a Unity version string to a numerical representation for comparison.
+   * @param version - The Unity version string.
+   * @param max - If true, treats missing parts as maximum values; otherwise, as minimum.
+   * @returns The numerical representation of the version.
+   */
   static toNumber = (version: string, max: boolean): number => {
     const match = version.toString().match(REGEXP_UNITY_NUM);
     if (match === null) return 0;

@@ -17,6 +17,12 @@ export const UnityChangeset = UnityChangesetClass;
 export type UnityChangeset = UnityChangesetClass;
 export { UnityReleaseEntitlement, UnityReleaseStream };
 
+/**
+ * Retrieves the Unity changeset for a specific version.
+ * @param version - The Unity version string (e.g., "2020.1.14f1").
+ * @returns A Promise that resolves to the UnityChangeset object.
+ * @throws Error if the version is not found.
+ */
 export async function getUnityChangeset(
   version: string,
 ): Promise<UnityChangeset> {
@@ -117,6 +123,15 @@ export enum FormatMode {
   PrettyJson = "pretty-json",
 }
 
+/**
+ * Lists Unity changesets based on search, filter, group, output, and format options.
+ * @param searchMode - The search mode to use.
+ * @param filterOptions - The filter options to apply.
+ * @param groupMode - The group mode to use.
+ * @param outputMode - The output mode for the results.
+ * @param formatMode - The format mode for the output.
+ * @returns A Promise that resolves to a formatted string of the results.
+ */
 export function listChangesets(
   searchMode: SearchMode,
   filterOptions: FilterOptions,
@@ -160,6 +175,12 @@ export function listChangesets(
     });
 }
 
+/**
+ * Searches for Unity changesets based on the specified search mode.
+ * @param searchMode - The search mode to use.
+ * @returns A Promise that resolves to an array of UnityChangeset objects.
+ * @throws Error if the search mode is not supported.
+ */
 export async function searchChangesets(
   searchMode: SearchMode,
 ): Promise<UnityChangeset[]> {
@@ -182,6 +203,12 @@ export async function searchChangesets(
   }
 }
 
+/**
+ * Filters an array of Unity changesets based on the provided options.
+ * @param changesets - The array of UnityChangeset objects to filter.
+ * @param options - The filter options.
+ * @returns An array of filtered UnityChangeset objects.
+ */
 export function filterChangesets(
   changesets: UnityChangeset[],
   options: FilterOptions,
@@ -216,6 +243,13 @@ export function filterChangesets(
   );
 }
 
+/**
+ * Groups an array of Unity changesets based on the specified group mode.
+ * @param changesets - The array of UnityChangeset objects to group.
+ * @param groupMode - The group mode to use.
+ * @returns An array of grouped UnityChangeset objects.
+ * @throws Error if the group mode is not supported.
+ */
 export function groupChangesets(
   changesets: UnityChangeset[],
   groupMode: GroupMode,
@@ -243,6 +277,11 @@ export function groupChangesets(
   }
 }
 
+/**
+ * Retrieves all Unity changesets from the database.
+ * @returns A Promise that resolves to an array of all UnityChangeset objects from the database.
+ * @throws Error if the database cannot be fetched or is invalid.
+ */
 export function getAllChangesetsFromDb(): Promise<UnityChangeset[]> {
   return fetch(UNITY_CHANGESETS_DB_URL)
     .then((res) => {
@@ -262,6 +301,11 @@ export function getAllChangesetsFromDb(): Promise<UnityChangeset[]> {
     });
 }
 
+/**
+ * Searches for Unity changesets from the database based on the specified search mode.
+ * @param searchMode - The search mode to use.
+ * @returns A Promise that resolves to an array of UnityChangeset objects from the database.
+ */
 export function searchChangesetsFromDb(
   searchMode: SearchMode,
 ): Promise<UnityChangeset[]> {
