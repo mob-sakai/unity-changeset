@@ -33,7 +33,9 @@ jobs:
           [ "$RESULT" = "false" ] && echo "::error::Other '${{ env.WORKFLOW_FILE }}' workflows are in progress." && exit 1 || :
 
       - name: 🛠️ Update changesets file
-        run: npx unity-changeset@latest list --all --all-lifecycles > db
+        run: |
+          npx unity-changeset@latest list --all --all-lifecycles --pretty-json > dbV3
+          jq -r '.[] | "\(.version)\t\(.changeset)"' dbV3 > db
 
       - name: Commit & Push changes
         uses: actions-js/push@master
