@@ -58,7 +58,7 @@ Deno.test("scrapeUnity6000Supported", async () => {
   const changesets = await searchChangesets(SearchMode.SUPPORTED);
   console.log(changesets.map((c) => c.version));
   assertNotEquals(changesets.length, 0);
-  
+
   const unity6000 = changesets.find(c => c.version.startsWith("6000"));
   assertNotEquals(unity6000, undefined);
 });

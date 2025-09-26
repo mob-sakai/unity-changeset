@@ -1,5 +1,4 @@
-unity-changeset
-===
+# unity-changeset
 
 Get/List Unity editor changeset
 
@@ -34,33 +33,33 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = fr
 ### Example
 
 ```js
-const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = require('unity-changeset');
+const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } =
+  require("unity-changeset");
 
 (async () => {
-    const changeset = await getUnityChangeset('2020.1.14f1');
-    console.log(changeset);
-    //=> UnityChangeset {version: '2020.1.14f1', changeset: 'd81f64f5201d'}
-    console.log(changeset.toString());
-    //=> 2020.1.14f1     d81f64f5201d
-    const changesets = await scrapeArchivedChangesets();
-    console.dir(changesets);
-    //=> [
-    //     UnityChangeset { version: '2020.1.15f1', changeset: '97d0ae02d19d' },
-    //     UnityChangeset { version: '2020.1.14f1', changeset: 'd81f64f5201d' },
-    //     UnityChangeset { version: '2020.1.13f1', changeset: '5e24f28bfbc0' },
-    //     ...
-    //   ]
-    const betaChangesets = await scrapeBetaChangesets();
-    console.log(betaChangesets);
-    //=> [
-    //     UnityChangeset { version: '2020.2.0b13', changeset: '655e1a328b90' },
-    //     UnityChangeset { version: '2020.2.0b12', changeset: '92852ae685d8' },
-    //     UnityChangeset { version: '2020.2.0b11', changeset: 'c499c2bf2e80' },
-    //     ...
-    //   ]
+  const changeset = await getUnityChangeset("2020.1.14f1");
+  console.log(changeset);
+  //=> UnityChangeset {version: '2020.1.14f1', changeset: 'd81f64f5201d'}
+  console.log(changeset.toString());
+  //=> 2020.1.14f1     d81f64f5201d
+  const changesets = await scrapeArchivedChangesets();
+  console.dir(changesets);
+  //=> [
+  //     UnityChangeset { version: '2020.1.15f1', changeset: '97d0ae02d19d' },
+  //     UnityChangeset { version: '2020.1.14f1', changeset: 'd81f64f5201d' },
+  //     UnityChangeset { version: '2020.1.13f1', changeset: '5e24f28bfbc0' },
+  //     ...
+  //   ]
+  const betaChangesets = await scrapeBetaChangesets();
+  console.log(betaChangesets);
+  //=> [
+  //     UnityChangeset { version: '2020.2.0b13', changeset: '655e1a328b90' },
+  //     UnityChangeset { version: '2020.2.0b12', changeset: '92852ae685d8' },
+  //     UnityChangeset { version: '2020.2.0b11', changeset: 'c499c2bf2e80' },
+  //     ...
+  //   ]
 })();
 ```
-
 
 ## Usage as a deno module
 
@@ -90,7 +89,6 @@ or
 ```
 deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cli.ts
 ```
-
 
 ### Help
 
@@ -146,14 +144,12 @@ deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cl
     --pretty-json                           - Output in pretty json format
 ```
 
-
 ### Get a changeset for specific version:
 
 ```sh
 $ unity-changeset 2020.2.14f1
 d81f64f5201d
 ```
-
 
 ### Get a changeset for specific version
 
@@ -273,12 +269,12 @@ Issues are very valuable to this project.
 
 ### Pull Requests
 
-Pull requests are, a great way to get your ideas into this repository.  
+Pull requests are, a great way to get your ideas into this repository.
 
 ### Support
 
-This is an open source project that I am developing in my spare time.  
-If you like it, please support me.  
+This is an open source project that I am developing in my spare time.\
+If you like it, please support me.\
 With your support, I can spend more time on development. :)
 
 [![](https://user-images.githubusercontent.com/12690315/66942881-03686280-f085-11e9-9586-fc0b6011029f.png)](https://github.com/users/mob-sakai/sponsorship)
@@ -287,15 +283,19 @@ With your support, I can spend more time on development. :)
 
 ## License
 
-* MIT
+- MIT
 
 ## Author
 
-* ![](https://user-images.githubusercontent.com/12690315/96986908-434a0b80-155d-11eb-8275-85138ab90afa.png) [mob-sakai](https://github.com/mob-sakai) [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai) ![GitHub followers](https://img.shields.io/github/followers/mob-sakai?style=social)
+- ![](https://user-images.githubusercontent.com/12690315/96986908-434a0b80-155d-11eb-8275-85138ab90afa.png)
+  [mob-sakai](https://github.com/mob-sakai)
+  [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai)
+  ![GitHub followers](https://img.shields.io/github/followers/mob-sakai?style=social)
 
 ## See Also
 
-* GitHub page : https://github.com/mob-sakai/unity-changeset
-* Releases : https://github.com/mob-sakai/unity-changeset/releases
-* Issue tracker : https://github.com/mob-sakai/unity-changeset/issues
-* Change log : https://github.com/mob-sakai/unity-changeset/blob/main/CHANGELOG.md
+- GitHub page : https://github.com/mob-sakai/unity-changeset
+- Releases : https://github.com/mob-sakai/unity-changeset/releases
+- Issue tracker : https://github.com/mob-sakai/unity-changeset/issues
+- Change log :
+  https://github.com/mob-sakai/unity-changeset/blob/main/CHANGELOG.md

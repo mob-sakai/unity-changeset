@@ -19,19 +19,25 @@ export enum UnityReleaseEntitlement {
 interface UnityReleasesResponse {
   getUnityReleases: {
     totalCount: number;
-    edges: { node: { version: string; shortRevision: string; stream: UnityReleaseStream } }[];
+    edges: {
+      node: {
+        version: string;
+        shortRevision: string;
+        stream: UnityReleaseStream;
+      };
+    }[];
     pageInfo: { hasNextPage: boolean };
   };
 }
 
 interface UnityReleasesMajorVersionsResponse {
-  getUnityReleaseMajorVersions: { version: string; }[];
+  getUnityReleaseMajorVersions: { version: string }[];
 }
 
 export async function getUnityReleases(
   version: string,
   stream: UnityReleaseStream[] = [],
-  entitlements: UnityReleaseEntitlement[] = []
+  entitlements: UnityReleaseEntitlement[] = [],
 ): Promise<UnityChangeset[]> {
   const client = new GraphQLClient(UNITY_GRAPHQL_ENDPOINT);
   const query = gql`
@@ -72,7 +78,11 @@ query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityRele
     const data: UnityReleasesResponse = await client.request(query, variables);
     results.push(
       ...data.getUnityReleases.edges.map((edge) =>
-        new UnityChangeset(edge.node.version, edge.node.shortRevision, edge.node.stream == UnityReleaseStream.LTS)
+        new UnityChangeset(
+          edge.node.version,
+          edge.node.shortRevision,
+          edge.node.stream == UnityReleaseStream.LTS,
+        )
       ),
     );
     if (data.getUnityReleases.pageInfo.hasNextPage === false) {
@@ -107,10 +117,17 @@ query GetReleaseMajorVersions($entitlements: [UnityReleaseEntitlement!])
     entitlements: entitlements,
   };
 
-  const data: UnityReleasesMajorVersionsResponse = await client.request(query, variables);
+  const data: UnityReleasesMajorVersionsResponse = await client.request(
+    query,
+    variables,
+  );
   const results = await Promise.all(data.getUnityReleaseMajorVersions
     .map(async (v) => {
-      return await getUnityReleases(v.version, [UnityReleaseStream.LTS], entitlements);
+      return await getUnityReleases(
+        v.version,
+        [UnityReleaseStream.LTS],
+        entitlements,
+      );
     }));
 
   return results.flat();
