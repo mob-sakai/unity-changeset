@@ -13,7 +13,7 @@ Get/List Unity editor changeset
 
 ## Usage as a node module
 
-Requirement: NodeJs 14 or later
+Requirement: NodeJs 18 or later
 
 ### Install
 
@@ -77,7 +77,7 @@ const { getUnityChangeset, scrapeArchivedChangesets, scrapeBetaChangesets } = fr
 ### Install
 
 ```sh
-# Requirement: NodeJs 14 or later
+# Requirement: NodeJs 18 or later
 npm install -g unity-changeset
 
 # Use without installation

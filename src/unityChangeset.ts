@@ -38,21 +38,23 @@ export class UnityChangeset {
   constructor(
     version: string,
     changeset: string,
-    lts: boolean = false,
-    stream?: UnityReleaseStream,
-    entitlements?: UnityReleaseEntitlement[],
+    stream: UnityReleaseStream = UnityReleaseStream.UNDEFINED,
+    entitlements: UnityReleaseEntitlement[] = [],
   ) {
-    Object.assign(this, { version, changeset });
-
-    if (stream && entitlements) {
-      this.stream = stream;
-      this.entitlements = entitlements;
-      this.lts = stream === UnityReleaseStream.LTS;
-      this.xlts = entitlements.includes(UnityReleaseEntitlement.XLTS);
-    } else {
-      this.lts = lts;
-      this.stream = lts ? UnityReleaseStream.LTS : UnityReleaseStream.UNDEFINED;
+    if (!version || typeof version !== "string") {
+      throw new Error("Version must be a non-empty string");
     }
+    if (!changeset || typeof changeset !== "string") {
+      throw new Error("Changeset must be a non-empty string");
+    }
+    if (!Array.isArray(entitlements)) {
+      throw new Error("Entitlements must be an array");
+    }
+
+    Object.assign(this, { version, changeset, stream, entitlements });
+
+    this.lts = stream === UnityReleaseStream.LTS;
+    this.xlts = entitlements.includes(UnityReleaseEntitlement.XLTS);
 
     const match = this.version.match(REGEXP_UNITY);
     if (match) {

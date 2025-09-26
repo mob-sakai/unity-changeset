@@ -1,4 +1,11 @@
 {
+  "imports": {
+    "dnt": "https://deno.land/x/dnt@0.40.0/mod.ts",
+    "graphql-request": "npm:graphql-request@6.1.0",
+    "cliffy/command": "https://deno.land/x/cliffy@v0.25.7/command/command.ts",
+    "std/path": "https://deno.land/std@0.181.0/path/mod.ts",
+    "std/testing/asserts": "https://deno.land/std@0.181.0/testing/asserts.ts"
+  },
   "tasks": {
     "run": "deno run -A src/cli.ts",
     "build": "deno run -A build/build_npm.ts",

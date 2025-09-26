@@ -1,10 +1,10 @@
 {
-  "version": "4",
+  "version": "5",
   "specifiers": {
-    "npm:graphql-request@6.1.0": "6.1.0_graphql@16.9.0"
+    "npm:graphql-request@6.1.0": "6.1.0_graphql@16.11.0"
   },
   "npm": {
-    "@graphql-typed-document-node/core@3.2.0_graphql@16.9.0": {
+    "@graphql-typed-document-node/core@3.2.0_graphql@16.11.0": {
       "integrity": "sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==",
       "dependencies": [
         "graphql"
@@ -16,7 +16,7 @@
         "node-fetch"
       ]
     },
-    "graphql-request@6.1.0_graphql@16.9.0": {
+    "graphql-request@6.1.0_graphql@16.11.0": {
       "integrity": "sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==",
       "dependencies": [
         "@graphql-typed-document-node/core",
@@ -24,8 +24,8 @@
         "graphql"
       ]
     },
-    "graphql@16.9.0": {
-      "integrity": "sha512-GGTKBX4SD7Wdb8mqeDLni2oaRGYQWjWHGKPQ24ZMnUtKfcsVoiv4uX8+LJr1K6U5VW2Lu1BwJnj7uiori0YtRw=="
+    "graphql@16.11.0": {
+      "integrity": "sha512-mS1lbMsxgQj6hge1XZ6p7GPhbrtFwUFYi3wRzXAC/FmYnyXMTvvI3td3rjmQ2u8ewXueaSvRPWaEcgVVOT9Jnw=="
     },
     "node-fetch@2.7.0": {
       "integrity": "sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==",
@@ -156,5 +156,10 @@
     "https://deno.land/x/ts_morph@20.0.0/common/typescript.js": "b9edf0a451685d13e0467a7ed4351d112b74bd1e256b915a2b941054e31c1736",
     "https://deno.land/x/wasmbuild@0.15.1/cache.ts": "9d01b5cb24e7f2a942bbd8d14b093751fa690a6cde8e21709ddc97667e6669ed",
     "https://deno.land/x/wasmbuild@0.15.1/loader.ts": "8c2fc10e21678e42f84c5135d8ab6ab7dc92424c3f05d2354896a29ccfd02a63"
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:graphql-request@6.1.0"
+    ]
   }
 }
