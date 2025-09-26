@@ -11,6 +11,16 @@ Get/List Unity editor changeset
 
 <br><br><br><br>
 
+## Key Features
+
+- Get Unity editor changeset for specific versions
+- List archived and beta changesets
+- Available as Node.js module, Deno module, and CLI tool
+- Supports filtering, searching, and grouping of changesets
+- Integration with Unity Hub for installation
+
+<br><br><br><br>
+
 ## Usage as a node module
 
 Requirement: NodeJs 18 or later
@@ -254,6 +264,35 @@ $ /path/to/unity/hub -- --headless install \
   --changeset `unity-changeset 2020.1.15f1` \
   --module ios,android
 ```
+
+<br><br><br><br>
+
+## How to Develop
+
+### Prerequisites
+
+- [asdf](https://asdf-vm.com/) (for managing Deno/Node versions)
+
+### Setup
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/mob-sakai/unity-changeset.git
+   cd unity-changeset
+   ```
+
+2. Install dependencies:
+   ```sh
+   asdf install
+   deno install
+   ```
+
+### Development Tasks
+
+- Run tests: `deno task test`
+- Build the project: `deno task build`
+- Lint and format code: `deno task lint`
+- Run the CLI: `deno task run`
 
 <br><br><br><br>
 
