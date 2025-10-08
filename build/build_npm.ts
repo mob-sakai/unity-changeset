@@ -35,6 +35,9 @@ await build({
     engines: {
       node: ">=18",
     },
+    dependencies: {
+      "graphql": "^16.8.1",
+    },
   },
   postBuild() {
     Deno.copyFileSync("LICENSE", "npm/LICENSE");
