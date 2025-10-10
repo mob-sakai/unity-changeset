@@ -13,8 +13,10 @@ import {
   GroupMode,
   SearchMode,
   UnityChangeset,
+  UnityReleaseEntitlement,
   UnityReleaseStream,
 } from "./index.ts";
+import { searchModeToStreams } from "./utils.ts";
 
 Deno.test("UnityChangeset.toNumber min", () => {
   assertEquals(UnityChangeset.toNumber("2018.3", false), 201803000000);
@@ -56,7 +58,7 @@ Deno.test("scrapeBetaChangesets", async () => {
 
 // At least one changeset from unity 6000 version should be found.
 Deno.test("scrapeUnity6000Supported", async () => {
-  const changesets = await searchChangesets(SearchMode.SUPPORTED);
+  const changesets = await searchChangesets(SearchMode.Supported);
   assertNotEquals(changesets.length, 0);
 
   const unity6000 = changesets.find(c => c.version.startsWith("6000"));
@@ -68,7 +70,7 @@ Deno.test("scrapeUnity6000Supported", async () => {
   { searchMode: SearchMode.All },
   { searchMode: SearchMode.Default },
   { searchMode: SearchMode.PreRelease },
-  { searchMode: SearchMode.SUPPORTED },
+  { searchMode: SearchMode.Supported },
 ].forEach((testcase) => {
   Deno.test(`filterChangesets(${JSON.stringify(testcase.searchMode)})`, async () => {
     const changesets = await searchChangesets(testcase.searchMode);
@@ -85,7 +87,7 @@ const changesetsForTest = [
   new UnityChangeset("2018.3.2f1", "000000000000"),
   new UnityChangeset("2018.4.0f1", "000000000000", UnityReleaseStream.LTS),
   new UnityChangeset("2018.4.1f1", "000000000000", UnityReleaseStream.LTS),
-  new UnityChangeset("2018.4.2f1", "000000000000", UnityReleaseStream.LTS),
+  new UnityChangeset("2018.4.2f1", "000000000000", UnityReleaseStream.LTS, [UnityReleaseEntitlement.XLTS]),
   new UnityChangeset("2019.1.0a1", "000000000000"),
   new UnityChangeset("2019.1.0a2", "000000000000"),
   new UnityChangeset("2019.1.0b1", "000000000000"),
@@ -103,11 +105,11 @@ const changesetsForTest = [
 
 // filterChangesets
 [
-  { options: { min: "2018.3", max: "2018.4", grep: "", allLifecycles: false, lts: false, }, expected: 6, },
-  { options: { min: "2018.3", max: "", grep: "2018", allLifecycles: false, lts: false, }, expected: 6, },
-  { options: { min: "", max: "", grep: "", allLifecycles: false, lts: true }, expected: 3, },
-  { options: { min: "2019", max: "", grep: "", allLifecycles: true, lts: false, }, expected: 13, },
-  { options: { min: "2019", max: "", grep: "b", allLifecycles: true, lts: false, }, expected: 4, },
+  { options: { min: "2018.3", max: "2018.4", grep: "", allLifecycles: false, xlts: false, }, expected: 5, },
+  { options: { min: "2018.3", max: "", grep: "2018", allLifecycles: false, xlts: false, }, expected: 5, },
+  { options: { min: "2019", max: "", grep: "", allLifecycles: true, xlts: false, }, expected: 13, },
+  { options: { min: "2019", max: "", grep: "b", allLifecycles: true, xlts: false, }, expected: 4, },
+  { options: { min: "", max: "", grep: "", allLifecycles: false, xlts: true, }, expected: 14, },
 ].forEach((testcase) => {
   Deno.test(`filterChangesets(${JSON.stringify(testcase.options)})`, () => {
     const changesets = filterChangesets(changesetsForTest, testcase.options);
@@ -129,6 +131,6 @@ const changesetsForTest = [
 });
 
 Deno.test("scrapeArchivedChangesetsFromDb", async () => {
-  const changesets = await searchChangesetsFromDb(SearchMode.Default);
+  const changesets = await searchChangesetsFromDb(searchModeToStreams(SearchMode.Default));
   assertNotEquals(changesets.length, 0);
 });

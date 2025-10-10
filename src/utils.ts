@@ -40,11 +40,10 @@ export function searchModeToStreams(
         UnityReleaseStream.BETA,
       ];
     case SearchMode.LTS:
-    case SearchMode.XLTS:
       return [
         UnityReleaseStream.LTS,
       ];
-    case SearchMode.SUPPORTED:
+    case SearchMode.Supported:
       return [
         UnityReleaseStream.SUPPORTED,
       ];

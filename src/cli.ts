@@ -52,13 +52,13 @@ new Command()
       .example("unity-changeset list --lts --latest-patch", "List changesets of the latest patch versions (LTS only).")
       // Search options.
       .group("Search options")
-      .option("--all", "Search all changesets (alpha/beta included)")
-      .option("--pre-release, --beta", "Search only pre-release (alpha/beta) changesets", { conflicts: ["all", "lts", "xlts"] })
-      .option("--lts", "Only the LTS versions", { conflicts: ["all", "pre-release", "xlts", "supported"] })
-      .option("--xlts", "Only the LTS/XLTS versions (require 'Enterprise' or 'Industry' license to install XLTS version)", { conflicts: ["all", "pre-release", "lts", "supported"] })
-      .option("--supported", "Only the supported versions (including Unity 6000)", { conflicts: ["all", "pre-release", "lts", "xlts"] })
+      .option("--all", "Search in all streams (alpha/beta included)")
+      .option("--supported", "Search in the 'SUPPORTED' stream (including Unity 6000)", { conflicts: ["all", "pre-release", "lts"] })
+      .option("--lts", "Search in the 'LTS' stream", { conflicts: ["all", "supported", "pre-release"] })
+      .option("--pre-release, --beta", "Search in the 'ALPHA' and 'BETA' streams", { conflicts: ["all", "supported", "lts"] })
       // Filter options.
       .group("Filter options")
+      .option("--xlts", "Include XLTS entitlement versions (require 'Enterprise' or 'Industry' license to install XLTS version)")
       .option("--min <version>", "Minimum version (included)")
       .option("--max <version>", "Maximum version (included)")
       .option("--grep <regex>", "Regular expression (e.g. '20(18|19).4.*')")
@@ -82,11 +82,9 @@ new Command()
             ? SearchMode.PreRelease
             : options.lts
               ? SearchMode.LTS
-              : options.xlts
-                ? SearchMode.XLTS
-                : options.supported
-                  ? SearchMode.SUPPORTED
-                  : SearchMode.Default;
+              : options.supported
+                ? SearchMode.Supported
+                : SearchMode.Default;
 
         // Group mode.
         const groupMode = (options.latestPatch || options.minorVersionOnly)
@@ -103,7 +101,7 @@ new Command()
           allLifecycles: (options.allLifecycles && !options.latestLifecycle)
             ? true
             : false,
-          lts: options.lts || false,
+          xlts: options.xlts || false,
         };
 
         // Output mode.

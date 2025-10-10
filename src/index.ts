@@ -1,4 +1,4 @@
-import { getUnityReleases, getUnityReleasesInLTS } from "./unityGraphQL.ts";
+import { getUnityReleases } from "./unityGraphQL.ts";
 import {
   UnityChangeset as UnityChangesetClass,
   UnityReleaseEntitlement,
@@ -30,7 +30,11 @@ export async function getUnityChangeset(
 
   let changesets: UnityChangeset[];
   try {
-    changesets = await getUnityReleases(sanitizedVersion, []);
+    changesets = await getUnityReleases(
+      sanitizedVersion,
+      searchModeToStreams(SearchMode.All),
+      [UnityReleaseEntitlement.XLTS],
+    );
   } catch {
     changesets = await getAllChangesetsFromDb();
   }
@@ -61,8 +65,7 @@ export enum SearchMode {
   Default = 2,
   PreRelease = 3,
   LTS = 4,
-  XLTS = 5,
-  SUPPORTED = 6,
+  Supported = 6,
 }
 
 /*
@@ -94,7 +97,7 @@ export interface FilterOptions {
   max: string;
   grep: string;
   allLifecycles: boolean;
-  lts: boolean;
+  xlts: boolean;
 }
 
 /*
@@ -184,22 +187,11 @@ export function listChangesets(
 export async function searchChangesets(
   searchMode: SearchMode,
 ): Promise<UnityChangeset[]> {
+  const streams = searchModeToStreams(searchMode);
   try {
-    switch (searchMode) {
-      case SearchMode.All:
-      case SearchMode.Default:
-      case SearchMode.PreRelease:
-      case SearchMode.SUPPORTED:
-        return await getUnityReleases(".", searchModeToStreams(searchMode));
-      case SearchMode.LTS:
-        return await getUnityReleasesInLTS();
-      case SearchMode.XLTS:
-        return await getUnityReleasesInLTS([UnityReleaseEntitlement.XLTS]);
-      default:
-        throw Error(`The given search mode '${searchMode}' was not supported`);
-    }
+    return await getUnityReleases(".", streams, [UnityReleaseEntitlement.XLTS]);
   } catch {
-    return await searchChangesetsFromDb(searchMode);
+    return await searchChangesetsFromDb(streams);
   }
 }
 
@@ -237,7 +229,7 @@ export function filterChangesets(
     (c) =>
       min <= c.versionNumber &&
       c.versionNumber <= max &&
-      (!options.lts || c.lts) &&
+      (options.xlts || !c.xlts) && // Include XLTS?
       (!regex || regex.test(c.version)) &&
       (!lc || lc.some((l) => l.minor == c.minor && l.lifecycle == c.lifecycle)),
   );
@@ -303,20 +295,17 @@ export function getAllChangesetsFromDb(): Promise<UnityChangeset[]> {
 
 /**
  * Searches for Unity changesets from the database based on the specified search mode.
- * @param searchMode - The search mode to use.
+ * @param streams - The array of release streams to filter by.
  * @returns A Promise that resolves to an array of UnityChangeset objects from the database.
  */
 export function searchChangesetsFromDb(
-  searchMode: SearchMode,
+  streams: UnityReleaseStream[],
 ): Promise<UnityChangeset[]> {
   return getAllChangesetsFromDb()
     .then((changesets: UnityChangeset[]) => {
       if (!changesets || !Array.isArray(changesets)) return [];
       if (changesets.length == 0) return [];
 
-      const streams = searchModeToStreams(searchMode);
-      return searchMode === SearchMode.XLTS
-        ? changesets.filter((c) => streams.includes(c.stream))
-        : changesets.filter((c) => streams.includes(c.stream) && !c.xlts);
+      return changesets.filter((c) => streams.includes(c.stream));
     });
 }
