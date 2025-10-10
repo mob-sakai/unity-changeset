@@ -128,13 +128,14 @@ deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cl
 
   Search options:
 
-    --all                  - Search all changesets (alpha/beta included)
-    --pre-release, --beta  - Search only pre-release (alpha/beta) changesets
-    --lts                  - Only the LTS versions
-    --xlts                 - Only the LTS/XLTS versions (require 'Enterprise' or 'Industry' license to install XLTS version)
+    --all                  - Search in all streams (alpha/beta included)
+    --supported            - Search in the 'SUPPORTED' stream (including Unity 6000)  (Conflicts: --all, --pre-release, --lts)
+    --lts                  - Search in the 'LTS' stream                               (Conflicts: --all, --supported, --pre-release)
+    --pre-release, --beta  - Search in the 'ALPHA' and 'BETA' streams                 (Conflicts: --all, --supported, --lts)
 
   Filter options:
 
+    --xlts                         - Include XLTS entitlement versions (require 'Enterprise' or 'Industry' license to install XLTS version)
     --min               <version>  - Minimum version (included)
     --max               <version>  - Maximum version (included)
     --grep              <regex>    - Regular expression (e.g. '20(18|19).4.*')
