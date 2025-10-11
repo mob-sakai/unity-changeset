@@ -70,10 +70,11 @@ Deno.test("UnityChangeset.toString", () => {
 [
   { version: "2018.3.0f1", expected: "f023c421e164" },
   { version: "2018.3.0f2", expected: "6e9a27477296" },
-  { version: "2018.3.0f3", expected: undefined },
-  { version: "2019.1.0a9", expected: "0acd256790e8" },
-  { version: "2019.1.0b1", expected: "83b3ba1f99df" },
-  { version: "6000.1.0f1", expected: "9ea152932a88" },
+  { version: "2018.3.0f3", expected: undefined }, // Not existing version
+  { version: "2019.1.0a9", expected: "0acd256790e8" }, // Alpha
+  { version: "2019.1.0b1", expected: "83b3ba1f99df" }, // Beta
+  { version: "6000.1.0f1", expected: "9ea152932a88" }, // Supported
+  { version: "2022.3.67f2", expected: "6bedba8691df" }, // XLTS
 ].forEach((testcase) => {
   Deno.test(`getUnityChangeset (${testcase.version})`, async () => {
     if (testcase.expected) {
@@ -111,6 +112,7 @@ Deno.test("scrapeUnity6000Supported", async () => {
   { searchMode: SearchMode.Default },
   { searchMode: SearchMode.PreRelease },
   { searchMode: SearchMode.Supported },
+  { searchMode: SearchMode.LTS },
 ].forEach((testcase) => {
   Deno.test(`filterChangesets(${JSON.stringify(testcase.searchMode)})`, async () => {
     const changesets = await searchChangesets(testcase.searchMode);

@@ -113,6 +113,7 @@ deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cl
 
     -h, --help     - Show this help.
     -V, --version  - Show the version number for this program.
+    --db [url]     - Use cached database instead of GraphQL API. If `url` is not specified, use the default database.
 ```
 
 ```

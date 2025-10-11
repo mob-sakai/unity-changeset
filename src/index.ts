@@ -20,23 +20,34 @@ export { UnityReleaseEntitlement, UnityReleaseStream };
 /**
  * Retrieves the Unity changeset for a specific version.
  * @param version - The Unity version string (e.g., "2020.1.14f1").
+ * @param db - Optional database URL or true to use the default database.
  * @returns A Promise that resolves to the UnityChangeset object.
  * @throws Error if the version is not found.
  */
 export async function getUnityChangeset(
   version: string,
+  db?: string | true,
 ): Promise<UnityChangeset> {
   const sanitizedVersion = sanitizeVersion(version);
 
   let changesets: UnityChangeset[];
-  try {
-    changesets = await getUnityReleases(
-      sanitizedVersion,
-      searchModeToStreams(SearchMode.All),
-      [UnityReleaseEntitlement.XLTS],
-    );
-  } catch {
-    changesets = await getAllChangesetsFromDb();
+
+  // Database mode.
+  if (db) {
+    const dbUrl = db === true ? UNITY_CHANGESETS_DB_URL : db;
+    changesets = await getAllChangesetsFromDb(dbUrl);
+  } else {
+    // GraphQL mode.
+    try {
+      changesets = await getUnityReleases(
+        sanitizedVersion,
+        searchModeToStreams(SearchMode.All),
+        [UnityReleaseEntitlement.XLTS],
+      );
+    } catch {
+      // Fallback to default database mode.
+      changesets = await getAllChangesetsFromDb(UNITY_CHANGESETS_DB_URL);
+    }
   }
 
   if (!changesets || !Array.isArray(changesets)) {
@@ -133,6 +144,7 @@ export enum FormatMode {
  * @param groupMode - The group mode to use.
  * @param outputMode - The output mode for the results.
  * @param formatMode - The format mode for the output.
+ * @param db - Optional database URL or true to use the default database.
  * @returns A Promise that resolves to a formatted string of the results.
  */
 export function listChangesets(
@@ -141,8 +153,9 @@ export function listChangesets(
   groupMode: GroupMode,
   outputMode: OutputMode,
   formatMode: FormatMode,
+  db?: string | true,
 ): Promise<string> {
-  return searchChangesets(searchMode)
+  return searchChangesets(searchMode, db)
     .then((results) => filterChangesets(results, filterOptions))
     .then((results) =>
       results.sort((a, b) => b.versionNumber - a.versionNumber)
@@ -181,17 +194,28 @@ export function listChangesets(
 /**
  * Searches for Unity changesets based on the specified search mode.
  * @param searchMode - The search mode to use.
+ * @param db - Optional database URL or true to use the default database.
  * @returns A Promise that resolves to an array of UnityChangeset objects.
  * @throws Error if the search mode is not supported.
  */
 export async function searchChangesets(
   searchMode: SearchMode,
+  db?: string | true,
 ): Promise<UnityChangeset[]> {
   const streams = searchModeToStreams(searchMode);
+
+  // Database mode.
+  if (db) {
+    const dbUrl = db === true ? UNITY_CHANGESETS_DB_URL : db;
+    return searchChangesetsFromDb(streams, dbUrl);
+  }
+
   try {
+    // GraphQL mode.
     return await getUnityReleases(".", streams, [UnityReleaseEntitlement.XLTS]);
   } catch {
-    return await searchChangesetsFromDb(streams);
+    // Fallback to default database mode.
+    return await searchChangesetsFromDb(streams, UNITY_CHANGESETS_DB_URL);
   }
 }
 
@@ -271,11 +295,14 @@ export function groupChangesets(
 
 /**
  * Retrieves all Unity changesets from the database.
+ * @param db - Database URL. If not specified, use the default database.
  * @returns A Promise that resolves to an array of all UnityChangeset objects from the database.
  * @throws Error if the database cannot be fetched or is invalid.
  */
-export function getAllChangesetsFromDb(): Promise<UnityChangeset[]> {
-  return fetch(UNITY_CHANGESETS_DB_URL)
+export function getAllChangesetsFromDb(
+  db: string = UNITY_CHANGESETS_DB_URL,
+): Promise<UnityChangeset[]> {
+  return fetch(db)
     .then((res) => {
       if (!res.ok) {
         throw Error(
@@ -283,25 +310,27 @@ export function getAllChangesetsFromDb(): Promise<UnityChangeset[]> {
         );
       }
 
-      return res.json() as Promise<UnityChangeset[]>;
+      return res.json() as Promise<any[]>;
     })
     .then((data) => {
       if (!Array.isArray(data)) {
         throw new Error("Invalid changeset database format: expected array");
       }
-      return data;
+      return data.map((item) => new UnityChangeset(item.version, item.changeset, item.stream, item.entitlements));
     });
 }
 
 /**
  * Searches for Unity changesets from the database based on the specified search mode.
  * @param streams - The array of release streams to filter by.
+ * @param db - Database URL. If not specified, use the default database.
  * @returns A Promise that resolves to an array of UnityChangeset objects from the database.
  */
 export function searchChangesetsFromDb(
   streams: UnityReleaseStream[],
+  db: string = UNITY_CHANGESETS_DB_URL,
 ): Promise<UnityChangeset[]> {
-  return getAllChangesetsFromDb()
+  return getAllChangesetsFromDb(db)
     .then((changesets: UnityChangeset[]) => {
       if (!changesets || !Array.isArray(changesets)) return [];
       if (changesets.length == 0) return [];
