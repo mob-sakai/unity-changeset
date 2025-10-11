@@ -303,20 +303,33 @@ export function getAllChangesetsFromDb(
   db: string = UNITY_CHANGESETS_DB_URL,
 ): Promise<UnityChangeset[]> {
   return fetch(db)
-    .then((res) => {
+    .then(async (res) => {
       if (!res.ok) {
+        await res.text(); // Consume the response body to avoid leaks
         throw Error(
           `The Unity changeset database could not be fetched: ${res.status} ${res.statusText}`,
         );
       }
 
-      return res.json() as Promise<any[]>;
+      return res.json() as Promise<unknown>;
     })
-    .then((data) => {
+    .then((data: unknown) => {
       if (!Array.isArray(data)) {
         throw new Error("Invalid changeset database format: expected array");
       }
-      return data.map((item) => new UnityChangeset(item.version, item.changeset, item.stream, item.entitlements));
+      return (data as {
+        version: string;
+        changeset: string;
+        stream?: string;
+        entitlements?: string[];
+      }[]).map((item) =>
+        new UnityChangeset(
+          item.version,
+          item.changeset,
+          item.stream as UnityReleaseStream,
+          item.entitlements as UnityReleaseEntitlement[],
+        )
+      );
     });
 }
 
