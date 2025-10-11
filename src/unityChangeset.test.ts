@@ -12,6 +12,7 @@ import {
   listChangesets,
   searchChangesets,
   searchChangesetsFromDb,
+  getAllChangesetsFromDb,
   GroupMode,
   OutputMode,
   FormatMode,
@@ -248,4 +249,62 @@ Deno.test("groupBy", () => {
     A: [{ id: 1, category: "A" }, { id: 3, category: "A" }],
     B: [{ id: 2, category: "B" }],
   });
+});
+
+
+// Tests for getUnityChangeset with db option
+[
+  { version: "2018.3.0f1", expected: "f023c421e164" },
+  { version: "2018.3.0f2", expected: "6e9a27477296" },
+  { version: "2018.3.0f3", expected: undefined }, // Not existing version
+  // { version: "2019.1.0a9", expected: "0acd256790e8" }, // Alpha (Too old)
+  // { version: "2019.1.0b1", expected: "83b3ba1f99df" }, // Beta (Too old)
+  { version: "6000.1.0f1", expected: "9ea152932a88" }, // Supported
+  { version: "2022.3.67f2", expected: "6bedba8691df" }, // XLTS
+].forEach((testcase) => {
+  Deno.test(`getUnityChangeset with db=true should return same as without db (${testcase.version})`, async () => {
+    const version = testcase.version;
+
+    if (testcase.expected) {
+      const changesetWithoutDb = await getUnityChangeset(version);
+      const changesetWithDb = await getUnityChangeset(version, true);
+      assertEquals(changesetWithoutDb.version, changesetWithDb.version);
+      assertEquals(changesetWithoutDb.changeset, changesetWithDb.changeset);
+    }
+    else {
+      await assertRejects(() => getUnityChangeset(testcase.version));
+      await assertRejects(() => getUnityChangeset(testcase.version, true));
+    }
+  });
+});
+
+Deno.test("getAllChangesetsFromDb with valid URL", async () => {
+  const changesets = await getAllChangesetsFromDb();
+  assertNotEquals(changesets.length, 0);
+  assertEquals(changesets.every(c => c instanceof UnityChangeset), true);
+});
+
+Deno.test("getAllChangesetsFromDb with invalid URL should reject", async () => {
+  const invalidUrl = "https://mob-sakai.github.io/unity-changeset/INVALID_DB";
+  await assertRejects(() => getAllChangesetsFromDb(invalidUrl));
+});
+
+Deno.test("getUnityChangeset with custom db URL", async () => {
+  const version = "2018.3.0f1";
+  const changeset = await getUnityChangeset(version);
+  assertEquals(changeset.version, version);
+  assertNotEquals(changeset.changeset, "");
+});
+
+Deno.test("searchChangesets with custom db URL", async () => {
+  const changesets = await searchChangesets(SearchMode.Default);
+  assertNotEquals(changesets.length, 0);
+  assertEquals(changesets.every(c => c instanceof UnityChangeset), true);
+});
+
+Deno.test("searchChangesetsFromDb", async () => {
+  const streams = searchModeToStreams(SearchMode.Default);
+  const changesets = await searchChangesetsFromDb(streams);
+  assertNotEquals(changesets.length, 0);
+  assertEquals(changesets.every(c => c.stream === UnityReleaseStream.LTS || c.stream === UnityReleaseStream.SUPPORTED || c.stream === UnityReleaseStream.TECH), true);
 });
