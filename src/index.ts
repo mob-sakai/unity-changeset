@@ -109,6 +109,8 @@ export interface FilterOptions {
   grep: string;
   allLifecycles: boolean;
   xlts: boolean;
+  ignoreAlpha: boolean;
+  ignoreBeta: boolean;
 }
 
 /*
@@ -254,6 +256,8 @@ export function filterChangesets(
       min <= c.versionNumber &&
       c.versionNumber <= max &&
       (options.xlts || !c.xlts) && // Include XLTS?
+      (!options.ignoreAlpha || c.stream !== UnityReleaseStream.ALPHA) &&
+      (!options.ignoreBeta || c.stream !== UnityReleaseStream.BETA) &&
       (!regex || regex.test(c.version)) &&
       (!lc || lc.some((l) => l.minor == c.minor && l.lifecycle == c.lifecycle)),
   );

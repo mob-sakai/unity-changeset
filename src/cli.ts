@@ -60,6 +60,8 @@ new Command()
       // Filter options.
       .group("Filter options")
       .option("--xlts", "Include XLTS entitlement versions (require 'Enterprise' or 'Industry' license to install XLTS version)")
+      .option("--ignore-alpha", "Exclude ALPHA stream versions")
+      .option("--ignore-beta", "Exclude BETA stream versions")
       .option("--min <version>", "Minimum version (included)")
       .option("--max <version>", "Maximum version (included)")
       .option("--grep <regex>", "Regular expression (e.g. '20(18|19).4.*')")
@@ -106,6 +108,8 @@ new Command()
             ? true
             : false,
           xlts: options.xlts || false,
+          ignoreAlpha: options.ignoreAlpha || false,
+          ignoreBeta: options.ignoreBeta || false,
         };
 
         // Output mode.

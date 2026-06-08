@@ -75,7 +75,7 @@ Deno.test("UnityChangeset.toString", () => {
   { version: "2019.1.0a9", expected: "0acd256790e8" }, // Alpha
   { version: "2019.1.0b1", expected: "83b3ba1f99df" }, // Beta
   { version: "6000.1.0f1", expected: "9ea152932a88" }, // Supported
-  { version: "2022.3.67f2", expected: "6bedba8691df" }, // XLTS
+  { version: "2022.3.62f3", expected: "96770f904ca7" }, // XLTS
 ].forEach((testcase) => {
   Deno.test(`getUnityChangeset (${testcase.version})`, async () => {
     if (testcase.expected) {
@@ -148,17 +148,59 @@ const changesetsForTest = [
 
 // filterChangesets
 [
-  { options: { min: "2018.3", max: "2018.4", grep: "", allLifecycles: false, xlts: false, }, expected: 5, },
-  { options: { min: "2018.3", max: "", grep: "2018", allLifecycles: false, xlts: false, }, expected: 5, },
-  { options: { min: "2019", max: "", grep: "", allLifecycles: true, xlts: false, }, expected: 13, },
-  { options: { min: "2019", max: "", grep: "b", allLifecycles: true, xlts: false, }, expected: 4, },
-  { options: { min: "", max: "", grep: "", allLifecycles: false, xlts: true, }, expected: 14, },
-  { options: { min: "", max: "", grep: "2018", allLifecycles: false, xlts: false, }, expected: 8, },
+  { options: { min: "2018.3", max: "2018.4", grep: "", allLifecycles: false, xlts: false, ignoreAlpha: false, ignoreBeta: false, }, expected: 5, },
+  { options: { min: "2018.3", max: "", grep: "2018", allLifecycles: false, xlts: false, ignoreAlpha: false, ignoreBeta: false, }, expected: 5, },
+  { options: { min: "2019", max: "", grep: "", allLifecycles: true, xlts: false, ignoreAlpha: false, ignoreBeta: false, }, expected: 13, },
+  { options: { min: "2019", max: "", grep: "b", allLifecycles: true, xlts: false, ignoreAlpha: false, ignoreBeta: false, }, expected: 4, },
+  { options: { min: "", max: "", grep: "", allLifecycles: false, xlts: true, ignoreAlpha: false, ignoreBeta: false, }, expected: 14, },
+  { options: { min: "", max: "", grep: "2018", allLifecycles: false, xlts: false, ignoreAlpha: false, ignoreBeta: false, }, expected: 8, },
 ].forEach((testcase) => {
   Deno.test(`filterChangesets(${JSON.stringify(testcase.options)})`, () => {
     const changesets = filterChangesets(changesetsForTest, testcase.options);
     assertEquals(changesets.length, testcase.expected);
   });
+});
+
+Deno.test("filterChangesets with ignore-alpha and ignore-beta", () => {
+  const preReleaseChangesets = [
+    new UnityChangeset("2020.1.0a1", "000000000000", UnityReleaseStream.ALPHA),
+    new UnityChangeset("2020.1.0a2", "000000000000", UnityReleaseStream.ALPHA),
+    new UnityChangeset("2020.1.0b1", "000000000000", UnityReleaseStream.BETA),
+    new UnityChangeset("2020.1.0f1", "000000000000", UnityReleaseStream.TECH),
+  ];
+
+  const ignoreAlphaOnly = filterChangesets(preReleaseChangesets, {
+    min: "",
+    max: "",
+    grep: "",
+    allLifecycles: true,
+    xlts: false,
+    ignoreAlpha: true,
+    ignoreBeta: false,
+  });
+  assertEquals(ignoreAlphaOnly.length, 2);
+
+  const ignoreBetaOnly = filterChangesets(preReleaseChangesets, {
+    min: "",
+    max: "",
+    grep: "",
+    allLifecycles: true,
+    xlts: false,
+    ignoreAlpha: false,
+    ignoreBeta: true,
+  });
+  assertEquals(ignoreBetaOnly.length, 3);
+
+  const ignoreBoth = filterChangesets(preReleaseChangesets, {
+    min: "",
+    max: "",
+    grep: "",
+    allLifecycles: true,
+    xlts: false,
+    ignoreAlpha: true,
+    ignoreBeta: true,
+  });
+  assertEquals(ignoreBoth.length, 1);
 });
 
 // groupChangesets
@@ -182,7 +224,7 @@ Deno.test("scrapeArchivedChangesetsFromDb", async () => {
 Deno.test("listChangesets", async () => {
   const result = await listChangesets(
     SearchMode.Default,
-    { min: "", max: "", grep: "", allLifecycles: false, xlts: false },
+    { min: "", max: "", grep: "", allLifecycles: false, xlts: false, ignoreAlpha: false, ignoreBeta: false },
     GroupMode.All,
     OutputMode.Changeset,
     FormatMode.Json,
@@ -260,7 +302,7 @@ Deno.test("groupBy", () => {
   // { version: "2019.1.0a9", expected: "0acd256790e8" }, // Alpha (Too old)
   // { version: "2019.1.0b1", expected: "83b3ba1f99df" }, // Beta (Too old)
   { version: "6000.1.0f1", expected: "9ea152932a88" }, // Supported
-  { version: "2022.3.67f2", expected: "6bedba8691df" }, // XLTS
+  { version: "2022.3.62f3", expected: "96770f904ca7" }, // XLTS
 ].forEach((testcase) => {
   Deno.test(`getUnityChangeset with db=true should return same as without db (${testcase.version})`, async () => {
     const version = testcase.version;

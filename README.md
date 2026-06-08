@@ -137,6 +137,8 @@ deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cl
   Filter options:
 
     --xlts                         - Include XLTS entitlement versions (require 'Enterprise' or 'Industry' license to install XLTS version)
+    --ignore-alpha                 - Exclude ALPHA stream versions
+    --ignore-beta                  - Exclude BETA stream versions
     --min               <version>  - Minimum version (included)
     --max               <version>  - Maximum version (included)
     --grep              <regex>    - Regular expression (e.g. '20(18|19).4.*')
@@ -205,6 +207,13 @@ $ unity-changeset list --all
 2020.1.14f1     d81f64f5201d
 2020.1.13f1     5e24f28bfbc0
 ...
+
+# List changesets (all, excluding alpha/beta):
+$ unity-changeset list --all --ignore-alpha
+2020.1.14f1     d81f64f5201d
+2020.1.13f1     5e24f28bfbc0
+...
+2020.2.0b13     655e1a328b90
 
 # List the available Unity versions:
 $ unity-changeset list --versions
