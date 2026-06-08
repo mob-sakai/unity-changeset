@@ -8,24 +8,31 @@ on:
     tags-ignore:
       - "**"
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: write
+  pull-requests: write
+  issues: write
+
 jobs:
   release:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: asdf-vm/actions/install@v4
 
       - run: deno task build
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false  # never use caching in release builds
 
-      - uses: cycjimmy/semantic-release-action@v5
+      - uses: cycjimmy/semantic-release-action@v6
         with:
           working_directory: npm
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
