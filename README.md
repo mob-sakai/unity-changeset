@@ -114,6 +114,7 @@ deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cl
     -h, --help     - Show this help.
     -V, --version  - Show the version number for this program.
     --db [url]     - Use cached database instead of GraphQL API. If `url` is not specified, use the default database.
+    --with-external-source  - Merge external Unity release sources into the database or GraphQL results.
 ```
 
 ```
@@ -156,12 +157,20 @@ deno install -A -f -n unity-changeset https://deno.land/x/unity_changeset/src/cl
     --minor-version-only, --minor-versions  - Outputs only the minor version (no changesets)
     --json                                  - Output in json format
     --pretty-json                           - Output in pretty json format
+    --with-external-source                  - Merge external Unity release sources into the database or GraphQL results.
 ```
 
 ### Get a changeset for specific version:
 
 ```sh
 $ unity-changeset 2020.2.14f1
+d81f64f5201d
+```
+
+### Get a changeset for specific version with external sources:
+
+```sh
+$ unity-changeset 2020.2.14f1 --with-external-source
 d81f64f5201d
 ```
 
@@ -257,6 +266,16 @@ $ unity-changeset list --latest-patch
 ...
 2017.2.5f1      588dc79c95ed
 2017.1.5f1      9758a36cfaa6
+```
+
+### List changesets with external sources
+
+This option merges changesets from Unity's public release API at `services.api.unity.com` and Unity's RSS feeds.
+
+```sh
+$ unity-changeset list --all --with-external-source
+2020.2.0b13     655e1a328b90
+...
 ```
 
 ### Install a specific version of Unity via UnityHub

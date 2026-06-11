@@ -3,21 +3,26 @@
   "configurations": [
     {
       "request": "launch",
+      "name": "list --with-external-source",
+      "type": "node",
+      "program": "${workspaceFolder}/src/cli.ts",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "runtimeExecutable": "deno",
+      "runtimeArgs": ["run", "--unstable", "--inspect-brk", "--allow-all"],
+      "args": ["list", "--with-external-source"],
+      "attachSimplePort": 9229
+    },
+    {
+      "request": "launch",
       "name": "list",
       "type": "node",
       "program": "${workspaceFolder}/src/cli.ts",
       "cwd": "${workspaceFolder}",
       "env": {},
       "runtimeExecutable": "deno",
-      "runtimeArgs": [
-        "run",
-        "--unstable",
-        "--inspect-brk",
-        "--allow-all"
-      ],
-      "args": [
-        "list"
-      ],
+      "runtimeArgs": ["run", "--unstable", "--inspect-brk", "--allow-all"],
+      "args": ["list"],
       "attachSimplePort": 9229
     },
     {
@@ -28,18 +33,8 @@
       "cwd": "${workspaceFolder}",
       "env": {},
       "runtimeExecutable": "deno",
-      "runtimeArgs": [
-        "run",
-        "--unstable",
-        "--inspect-brk",
-        "--allow-all"
-      ],
-      "args": [
-        "list",
-        "--versions",
-        "--all",
-        "--all-lifecycles"
-      ],
+      "runtimeArgs": ["run", "--unstable", "--inspect-brk", "--allow-all"],
+      "args": ["list", "--versions", "--all", "--all-lifecycles"],
       "attachSimplePort": 9229
     },
     {
@@ -50,15 +45,8 @@
       "cwd": "${workspaceFolder}",
       "env": {},
       "runtimeExecutable": "deno",
-      "runtimeArgs": [
-        "run",
-        "--unstable",
-        "--inspect-brk",
-        "--allow-all"
-      ],
-      "args": [
-        "6000.0.25f1"
-      ],
+      "runtimeArgs": ["run", "--unstable", "--inspect-brk", "--allow-all"],
+      "args": ["6000.0.25f1"],
       "attachSimplePort": 9229
     },
     {
@@ -69,15 +57,8 @@
       "cwd": "${workspaceFolder}",
       "env": {},
       "runtimeExecutable": "deno",
-      "runtimeArgs": [
-        "run",
-        "--unstable",
-        "--inspect-brk",
-        "--allow-all"
-      ],
-      "args": [
-        "6000.0.25f2"
-      ],
+      "runtimeArgs": ["run", "--unstable", "--inspect-brk", "--allow-all"],
+      "args": ["6000.0.25f2"],
       "attachSimplePort": 9229
     },
     {
@@ -88,15 +69,8 @@
       "cwd": "${workspaceFolder}",
       "env": {},
       "runtimeExecutable": "deno",
-      "runtimeArgs": [
-        "run",
-        "--unstable",
-        "--inspect-brk",
-        "--allow-all"
-      ],
-      "args": [
-        "--help"
-      ],
+      "runtimeArgs": ["run", "--unstable", "--inspect-brk", "--allow-all"],
+      "args": ["--help"],
       "attachSimplePort": 9229
     }
   ]

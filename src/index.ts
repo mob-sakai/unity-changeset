@@ -10,6 +10,7 @@ import {
   searchModeToStreams,
   validateFilterOptions,
 } from "./utils.ts";
+import { mergeExternalChangesets } from "./externalChangesets.ts";
 
 const UNITY_CHANGESETS_DB_URL =
   "https://mob-sakai.github.io/unity-changeset/dbV3";
@@ -27,13 +28,16 @@ export { UnityReleaseEntitlement, UnityReleaseStream };
 export async function getUnityChangeset(
   version: string,
   db?: string | true,
+  includeExternalSources = false,
 ): Promise<UnityChangeset> {
   const sanitizedVersion = sanitizeVersion(version);
 
   let changesets: UnityChangeset[];
 
-  // Database mode.
-  if (db) {
+  if (includeExternalSources) {
+    // When external sources are enabled, use the merged search path.
+    changesets = await searchChangesets(SearchMode.All, db, true);
+  } else if (db) {
     const dbUrl = db === true ? UNITY_CHANGESETS_DB_URL : db;
     changesets = await getAllChangesetsFromDb(dbUrl);
   } else {
@@ -156,8 +160,10 @@ export function listChangesets(
   outputMode: OutputMode,
   formatMode: FormatMode,
   db?: string | true,
+  includeExternalSources = false,
 ): Promise<string> {
-  return searchChangesets(searchMode, db)
+  // Keep data retrieval in searchChangesets and handle formatting here only.
+  return searchChangesets(searchMode, db, includeExternalSources)
     .then((results) => filterChangesets(results, filterOptions))
     .then((results) =>
       results.sort((a, b) => b.versionNumber - a.versionNumber)
@@ -203,21 +209,41 @@ export function listChangesets(
 export async function searchChangesets(
   searchMode: SearchMode,
   db?: string | true,
+  includeExternalSources = false,
 ): Promise<UnityChangeset[]> {
   const streams = searchModeToStreams(searchMode);
 
   // Database mode.
   if (db) {
     const dbUrl = db === true ? UNITY_CHANGESETS_DB_URL : db;
-    return searchChangesetsFromDb(streams, dbUrl);
+    const changesets = await searchChangesetsFromDb(streams, dbUrl);
+    // Merge external sources only when requested.
+    return includeExternalSources
+      ? mergeExternalChangesets(changesets, streams)
+      : changesets;
   }
 
   try {
     // GraphQL mode.
-    return await getUnityReleases(".", streams, [UnityReleaseEntitlement.XLTS]);
+    const changesets = await getUnityReleases(
+      ".",
+      streams,
+      [UnityReleaseEntitlement.XLTS],
+    );
+    // Enrich GraphQL results with external sources when requested.
+    return includeExternalSources
+      ? mergeExternalChangesets(changesets, streams)
+      : changesets;
   } catch {
     // Fallback to default database mode.
-    return await searchChangesetsFromDb(streams, UNITY_CHANGESETS_DB_URL);
+    const changesets = await searchChangesetsFromDb(
+      streams,
+      UNITY_CHANGESETS_DB_URL,
+    );
+    // Apply the same external merge after the fallback.
+    return includeExternalSources
+      ? mergeExternalChangesets(changesets, streams)
+      : changesets;
   }
 }
 

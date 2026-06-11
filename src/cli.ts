@@ -31,8 +31,9 @@ new Command()
   .example("unity-changeset 2018.4.36f1", "Get changeset of Unity 2018.4.36f1 ('6cd387d23174' will be output).")
   .arguments("<version>")
   .option("--db [url]", "Use cached database instead of GraphQL API. If `url` is not specified, use the default database.")
+  .option("--with-external-source", "Merge external Unity release sources into the database or GraphQL results.")
   .action((options, version) => {
-    getUnityChangeset(version, options.db)
+    getUnityChangeset(version, options.db, options.withExternalSource || false)
       .then((c) => console.log(c.changeset))
       .catch(() => {
         console.error("The given version was not found.");
@@ -80,6 +81,7 @@ new Command()
       // Database options.
       .group("Database options")
       .option("--db [url]", "Use cached database instead of GraphQL API. If `url` is not specified, use the default database.")
+      .option("--with-external-source", "Merge external Unity release sources into the database or GraphQL results.")
       .action((options) => {
         // Search mode.
         const searchMode = options.all
@@ -126,7 +128,15 @@ new Command()
             ? FormatMode.PrettyJson
             : FormatMode.None;
 
-        listChangesets(searchMode, filterOptions, groupMode, outputMode, formatMode, options.db)
+        listChangesets(
+          searchMode,
+          filterOptions,
+          groupMode,
+          outputMode,
+          formatMode,
+          options.db,
+          options.withExternalSource || false,
+        )
           .then((result) => console.log(result));
       }),
   )
