@@ -34,7 +34,7 @@ jobs:
 
       - name: 🛠️ Update changesets file
         run: |
-          npx unity-changeset@latest list --all --all-lifecycles --pretty-json --with-external-source > dbV3
+          npx unity-changeset@latest list --all --all-lifecycles --pretty-json --with-external-source --xlts > dbV3
           jq -r '.[] | "\(.version)\t\(.changeset)"' dbV3 > db
 
       - name: Commit & Push changes
