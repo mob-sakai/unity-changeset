@@ -19,6 +19,11 @@ const UNITY_RSS_FEEDS: {
     xlts: true,
   },
   {
+    url: "https://unity.com/releases/editor/supported-releases.xml",
+    stream: UnityReleaseStream.SUPPORTED,
+    xlts: false,
+  },
+  {
     url: "https://unity.com/releases/editor/tech-and-preview-releases.xml",
     stream: UnityReleaseStream.TECH,
     xlts: false,
